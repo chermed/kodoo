@@ -1,0 +1,5 @@
+.git
+config.yaml
+*.log
+.vscode/
+.github/
