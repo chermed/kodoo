@@ -17,7 +17,11 @@ func GetServers(config config.Config) Data {
 		Page:   1,
 		Pages:  1,
 	}
+	idx := 0
 	for name, values := range config.Servers {
+		if config.MetaConfig.DefaultServer == name {
+			tableData.Selection = append(tableData.Selection, idx)
+		}
 		serverName := RowItem{
 			Value: name,
 			Type:  "string",
@@ -53,6 +57,8 @@ func GetServers(config config.Config) Data {
 			"user":     serverUser,
 			"password": serverPassword,
 		})
+		idx++
+
 	}
 	return tableData
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/chermed/kodoo/internal/data"
+	"github.com/chermed/kodoo/pkg/kotils"
 	"github.com/chermed/kodoo/pkg/odoo"
 	"github.com/kyokomi/emoji"
 
@@ -34,6 +35,15 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 	table.SetBackgroundColor(options.Skin.BackgroundColor)
 	table.SetBorderColor(options.Skin.BorderColor)
 	table.SetTitleColor(options.Skin.TitleColor)
+	selectionTableCell := tview.NewTableCell("SEL").
+		SetTextColor(tcell.ColorYellow).
+		SetAlign(tview.AlignCenter).
+		SetSelectable(false).
+		SetExpansion(0).
+		SetBackgroundColor(options.Skin.BackgroundColor).
+		SetTextColor(options.Skin.TableHeaderFgColor).
+		SetMaxWidth(5)
+	table.SetCell(0, 0, selectionTableCell)
 	headerValueMap := make(map[int]string)
 	for column, headerValue := range tableData.Header {
 		headerValueMap[column] = headerValue
@@ -44,10 +54,22 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			SetExpansion(1).
 			SetBackgroundColor(options.Skin.BackgroundColor).
 			SetTextColor(options.Skin.TableHeaderFgColor)
-		table.SetCell(0, column, tableCell)
+		table.SetCell(0, column+1, tableCell)
 	}
+	idx := 0
 	for row, lines := range tableData.Lines {
 		fgColor := options.Skin.TableBodyFgColor
+		selectionBodyTableCell := tview.NewTableCell("").
+			SetAlign(tview.AlignCenter).
+			SetSelectable(true).
+			SetExpansion(0).
+			SetBackgroundColor(options.Skin.BackgroundColor).
+			SetTextColor(fgColor)
+		if kotils.IntInSlice(idx, tableData.Selection) {
+			selectionBodyTableCell.SetText("*")
+			table.Select(row+1, 0)
+		}
+		table.SetCell(row+1, 0, selectionBodyTableCell)
 		for column := range tableData.Header {
 			tableCell := tview.NewTableCell("").
 				SetAlign(tview.AlignLeft).
@@ -186,7 +208,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			if column == 0 {
 				tableCell.SetTextColor(options.Skin.TitleColor)
 			}
-			table.SetCell(row+1, column, tableCell)
+			table.SetCell(row+1, column+1, tableCell)
 		}
 		for column := range tableData.Header {
 			if column == 0 {
@@ -197,6 +219,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 				tableCell.SetTextColor(fgColor)
 			}
 		}
+		idx++
 	}
 	title := fmt.Sprintf(" [#76b4da]([#02fffe]%s[#76b4da]) [#76b4da][[#FFFFFF]%d[#76b4da]] [#76b4da]Page [#fe00fe]<%d/%d> ", tableData.Title, tableData.Count, tableData.Page, tableData.Pages)
 	table.SetBorder(true).SetTitle(title)
