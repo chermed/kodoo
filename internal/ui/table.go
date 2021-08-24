@@ -3,7 +3,6 @@ package ui
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,9 +15,14 @@ import (
 	"github.com/rivo/tview"
 )
 
+const (
+	SelectionFieldName = "__selection field__"
+)
+
 type OdooCellReference struct {
 	FieldName string
 	Model     string
+	ID        int
 }
 
 func getX2ManyStrValue(options *Options, fieldName string, x2ManyData odoo.X2ManyResult, ids []interface{}) string {
@@ -58,6 +62,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 	}
 	idx := 0
 	for row, lines := range tableData.Lines {
+		lineID := 0
 		fgColor := options.Skin.TableBodyFgColor
 		selectionBodyTableCell := tview.NewTableCell("").
 			SetAlign(tview.AlignCenter).
@@ -69,6 +74,11 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			selectionBodyTableCell.SetText("*")
 			table.Select(row+1, 0)
 		}
+		selectionCellReference := &OdooCellReference{
+			Model:     tableData.Model,
+			FieldName: SelectionFieldName,
+		}
+		selectionBodyTableCell.SetReference(selectionCellReference)
 		table.SetCell(row+1, 0, selectionBodyTableCell)
 		for column := range tableData.Header {
 			tableCell := tview.NewTableCell("").
@@ -143,8 +153,14 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 
 				}
 			case "float", "monetary":
+				if fieldName == "id" {
+					lineID = int(item.Value.(float64))
+				}
 				strValue = fmt.Sprintf("%f", item.Value.(float64))
 			case "integer":
+				if fieldName == "id" {
+					lineID = int(item.Value.(float64))
+				}
 				strValue = fmt.Sprintf("%d", int(item.Value.(float64)))
 			case "many2one":
 				switch item.Value.(type) {
@@ -211,10 +227,12 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			table.SetCell(row+1, column+1, tableCell)
 		}
 		for column := range tableData.Header {
+			tableCell := table.GetCell(row+1, column)
+			cellRef := tableCell.GetReference().(*OdooCellReference)
+			cellRef.ID = lineID
 			if column == 0 {
 				continue
 			}
-			tableCell := table.GetCell(row+1, column)
 			if fgColor != options.Skin.TableBodyFgColor {
 				tableCell.SetTextColor(fgColor)
 			}
@@ -240,6 +258,7 @@ func showData(tableData data.Data, options *Options) error {
 		event = checkTableDrillDownShortcuts(table, event, options)
 		event = checkTableNavigationShortcuts(table, event, options)
 		event = checkTableSearchBarShortcuts(event, options)
+		event = checkTableSelection(table, event, options)
 		return event
 	})
 	clearMainContainer(options)
@@ -265,41 +284,29 @@ func mainContainerHasTable(options *Options) bool {
 		return true
 	}
 }
-func getTableModelID(options *Options) (string, string, int, error) {
+func getTableModelIDs(options *Options) (model string, ids []int, err error) {
 	if !mainContainerHasTable(options) {
-		return "", "", 0, fmt.Errorf("There is no active table")
+		return model, ids, fmt.Errorf("There is no active table")
 	}
 	table := options.Table
-	row, _ := table.GetSelection()
-	var id int
-	var model, name string
-	for col := 0; col < table.GetColumnCount(); col++ {
-		cell := table.GetCell(row, col)
-		if cell.Reference == nil {
-			continue
-		}
-		odooCellReference := cell.Reference.(*OdooCellReference)
-		if odooCellReference.FieldName == "id" {
-			var err error
-			id, err = strconv.Atoi(cell.Text)
-			if err != nil {
-				return "", "", 0, err
+	for row := 0; row < table.GetRowCount(); row++ {
+		for col := 0; col < table.GetColumnCount(); col++ {
+			cell := table.GetCell(row, 0)
+			if cell.Reference == nil {
+				continue
 			}
-			model = odooCellReference.Model
+			odooCellReference := cell.Reference.(*OdooCellReference)
+			if odooCellReference.FieldName == SelectionFieldName && cell.Text != "" {
+				model = odooCellReference.Model
+				ids = append(ids, odooCellReference.ID)
+				break
+			}
 		}
-		if odooCellReference.FieldName == "name" {
-			name = cell.Text
-		}
 	}
-
-	if id == 0 {
-		msg := "Can not found any ID from this table"
-		return "", "", 0, fmt.Errorf(msg)
+	if len(ids) == 0 {
+		err = fmt.Errorf("Please select some items before this action!")
 	}
-	if name == "" {
-		name = strconv.Itoa(id)
-	}
-	return model, name, id, nil
+	return model, ids, err
 }
 func setTableFocus(options *Options) {
 	if mainContainerHasTable(options) {
@@ -350,7 +357,7 @@ func checkTableSearchBarShortcuts(event *tcell.EventKey, options *Options) *tcel
 }
 func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, options *Options) *tcell.EventKey {
 	if event.Key() == tcell.KeyEnter {
-		model, _, id, err := getTableModelID(options)
+		model, ids, err := getTableModelIDs(options)
 		if err != nil {
 			showInfo(err.Error(), options, tcell.ColorRed)
 		} else {
@@ -365,7 +372,7 @@ func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, opt
 				return event
 			}
 			rcmd := rcmds[0] //we have one or more
-			rcmd.SetIDs([]int{id})
+			rcmd.SetIDs(ids)
 			cmd := rcmd.GetCommand(options.OdooCfg)
 			options.CommandsHistory.AddCommand(cmd)
 			err = showSearchReadResult(cmd, options)
@@ -373,6 +380,20 @@ func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, opt
 				showInfo(err.Error(), options, tcell.ColorRed)
 				return event
 			}
+		}
+	}
+	return event
+}
+func checkTableSelection(table *tview.Table, event *tcell.EventKey, options *Options) *tcell.EventKey {
+	if event.Rune() == ' ' {
+		row, _ := table.GetSelection()
+		selectionTableCell := table.GetCell(row, 0)
+		cellRef := selectionTableCell.GetReference().(*OdooCellReference)
+		options.OdooCfg.Log.Info("ID = ", cellRef.ID)
+		if selectionTableCell.Text == "" {
+			selectionTableCell.SetText("*")
+		} else {
+			selectionTableCell.SetText("")
 		}
 	}
 	return event
