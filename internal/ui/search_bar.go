@@ -99,20 +99,20 @@ func processInput(value string, options *Options) error {
 		if len(funcValue) == 0 {
 			return fmt.Errorf("Please specify a remote function to execute")
 		}
-		model, name, id, err := getTableModelID(options)
+		model, ids, err := getTableModelIDs(options, false)
 		if err != nil {
 			return showInfo(err.Error(), options, tcell.ColorRed)
 		}
 		funcName := funcValue[0]
-		funcArgs := []interface{}{[]int{id}}
+		funcArgs := []interface{}{ids}
 		if len(funcValue) > 1 {
 			for _, strValue := range funcValue[1:] {
 				funcArgs = append(funcArgs, strValue)
 			}
 		}
-		question := fmt.Sprintf(
-			"Do you want to execute the function <%s> of the object <%s> for %s ?", funcName, model, name)
-		return showConfirmationModal(options, question, func() error {
+		title := fmt.Sprintf("Execute <%s> on %d item(s) ?", funcName, len(ids))
+		question := fmt.Sprintf("Do you want to execute the function <%s> of the object <%s> on %d item(s) ?", funcName, model, len(ids))
+		return showConfirmationModal(options, title, question, func() error {
 			data, err := data.RunRemoteFunction(options.OdooCfg, options.Config, model, funcName, funcArgs...)
 			if err != nil {
 				return showInfo(err.Error(), options, tcell.ColorRed)

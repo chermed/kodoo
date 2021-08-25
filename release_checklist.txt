@@ -1,0 +1,4 @@
+1. Update the version before the tag
+2. Update changes
+3. Test the application
+4. Tag and push

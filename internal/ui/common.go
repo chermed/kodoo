@@ -4,7 +4,10 @@ import (
 	"github.com/rivo/tview"
 )
 
-func addField(options *Options, grid *tview.Grid, row int, col int, label string, value string, isError bool) (*tview.TextView, *tview.TextView, *tview.TextView) {
+func addField(options *Options, grid *tview.Grid, row int, col int, label string, value string, isError bool, margin bool) (*tview.TextView, *tview.TextView, *tview.TextView) {
+	if margin {
+		label = " " + label
+	}
 	lbl := tview.NewTextView().SetText(label)
 	lbl.SetBackgroundColor(options.Skin.BackgroundColor)
 	val := tview.NewTextView().SetText(value)

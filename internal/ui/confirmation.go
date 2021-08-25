@@ -8,10 +8,7 @@ func setupConfirmation(options *Options) *tview.Grid {
 	grid := options.Confirmation
 	grid.Clear()
 	grid.SetColumns(0, 10, 0).SetRows(0, 10, 0)
-
 	modal := getConfirmationModal(options)
-	modal.SetTitle("Confirmation")
-	modal.SetTitleColor(options.Skin.TitleColor)
 	modal.SetTextColor(options.Skin.ModalFgColor)
 	modal.SetBackgroundColor(options.Skin.ModalBackgroundColor)
 	modal.SetButtonTextColor(options.Skin.TitleColor)
@@ -22,10 +19,9 @@ func setupConfirmation(options *Options) *tview.Grid {
 func getConfirmationModal(options *Options) *tview.Modal {
 	return options.ConfirmationModal
 }
-func showConfirmationModal(options *Options, msg string, fn func() error) error {
+func showConfirmationModal(options *Options, title string, msg string, fn func() error) (err error) {
 	modal := getConfirmationModal(options)
 	modal.SetText(msg)
-	var err error
 	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 		options.Pages.SwitchToPage("main")
 		if buttonLabel == "Apply" {

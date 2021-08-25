@@ -16,4 +16,5 @@ type Data struct {
 	Pages      int
 	Model      string
 	X2ManyData odoo.X2ManyResult
+	Selection  []int
 }
