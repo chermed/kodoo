@@ -12,9 +12,9 @@ func setupHeader(grid *tview.Grid, options *Options) *tview.Grid {
 		header = grid.SetRows(0).SetColumns(0)
 	} else {
 		infos := getServerInfo(options)
-		header = grid.SetRows(4).SetColumns(1, 0)
+		header = grid.SetRows(4).SetColumns(0)
 		header.SetBackgroundColor(options.Skin.BackgroundColor)
-		header.AddItem(infos, 0, 1, 1, 1, 0, 0, false)
+		header.AddItem(infos, 0, 0, 1, 1, 0, 0, false)
 	}
 	return header
 }

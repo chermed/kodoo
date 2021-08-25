@@ -35,7 +35,7 @@ func getX2ManyStrValue(options *Options, fieldName string, x2ManyData odoo.X2Man
 func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 	log := options.Config.Log
 	table := tview.NewTable().
-		SetFixed(1, 1).SetSelectable(true, false)
+		SetFixed(1, 2).SetSelectable(true, false)
 	table.SetBackgroundColor(options.Skin.BackgroundColor)
 	table.SetBorderColor(options.Skin.BorderColor)
 	table.SetTitleColor(options.Skin.TitleColor)
@@ -284,25 +284,37 @@ func mainContainerHasTable(options *Options) bool {
 		return true
 	}
 }
-func getTableModelIDs(options *Options) (model string, ids []int, err error) {
+func getTableModelIDs(options *Options, selection bool) (model string, ids []int, err error) {
 	if !mainContainerHasTable(options) {
 		return model, ids, fmt.Errorf("There is no active table")
 	}
 	table := options.Table
-	for row := 0; row < table.GetRowCount(); row++ {
-		for col := 0; col < table.GetColumnCount(); col++ {
-			cell := table.GetCell(row, 0)
-			if cell.Reference == nil {
-				continue
-			}
+	if selection {
+		row, _ := table.GetSelection()
+		cell := table.GetCell(row, 0)
+		if cell.Reference != nil {
 			odooCellReference := cell.Reference.(*OdooCellReference)
-			if odooCellReference.FieldName == SelectionFieldName && cell.Text != "" {
-				model = odooCellReference.Model
-				ids = append(ids, odooCellReference.ID)
-				break
+			model = odooCellReference.Model
+			ids = append(ids, odooCellReference.ID)
+
+		}
+	} else {
+		for row := 0; row < table.GetRowCount(); row++ {
+			for col := 0; col < table.GetColumnCount(); col++ {
+				cell := table.GetCell(row, 0)
+				if cell.Reference == nil {
+					continue
+				}
+				odooCellReference := cell.Reference.(*OdooCellReference)
+				if odooCellReference.FieldName == SelectionFieldName && cell.Text != "" {
+					model = odooCellReference.Model
+					ids = append(ids, odooCellReference.ID)
+					break
+				}
 			}
 		}
 	}
+
 	if len(ids) == 0 {
 		err = fmt.Errorf("Please select some items before this action!")
 	}
@@ -357,7 +369,7 @@ func checkTableSearchBarShortcuts(event *tcell.EventKey, options *Options) *tcel
 }
 func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, options *Options) *tcell.EventKey {
 	if event.Key() == tcell.KeyEnter {
-		model, ids, err := getTableModelIDs(options)
+		model, ids, err := getTableModelIDs(options, true)
 		if err != nil {
 			showInfo(err.Error(), options, tcell.ColorRed)
 		} else {
@@ -388,8 +400,6 @@ func checkTableSelection(table *tview.Table, event *tcell.EventKey, options *Opt
 	if event.Rune() == ' ' {
 		row, _ := table.GetSelection()
 		selectionTableCell := table.GetCell(row, 0)
-		cellRef := selectionTableCell.GetReference().(*OdooCellReference)
-		options.OdooCfg.Log.Info("ID = ", cellRef.ID)
 		if selectionTableCell.Text == "" {
 			selectionTableCell.SetText("*")
 		} else {

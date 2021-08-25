@@ -99,7 +99,7 @@ func processInput(value string, options *Options) error {
 		if len(funcValue) == 0 {
 			return fmt.Errorf("Please specify a remote function to execute")
 		}
-		model, ids, err := getTableModelIDs(options)
+		model, ids, err := getTableModelIDs(options, false)
 		if err != nil {
 			return showInfo(err.Error(), options, tcell.ColorRed)
 		}
