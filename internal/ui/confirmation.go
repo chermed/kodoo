@@ -4,7 +4,8 @@ import (
 	"github.com/rivo/tview"
 )
 
-func setupConfirmation(grid *tview.Grid, options *Options) *tview.Grid {
+func setupConfirmation(options *Options) *tview.Grid {
+	grid := options.Confirmation
 	grid.Clear()
 	grid.SetColumns(0, 10, 0).SetRows(0, 10, 0)
 

@@ -23,7 +23,9 @@ type OdooFieldInfo struct {
 	Searchable       bool          `mapstructure:"searchable"`
 	Sortable         bool          `mapstructure:"sortable"`
 }
-
+type OdooMetadataResult struct {
+	ID int `mapstructure:"id"`
+}
 type OdooFieldsResult map[string]OdooFieldInfo
 type OdooFieldsViewGetResult struct {
 	Arch      string `mapstructure:"arch"`

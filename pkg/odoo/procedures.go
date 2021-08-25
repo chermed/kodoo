@@ -169,6 +169,22 @@ func (server *Server) NameGet(cmd *Command, odooCfg *OdooConfig) (OdooNameGetRes
 	}
 	return odooNameGetResult, nil
 }
+func (server *Server) Metadata(cmd *Command, odooCfg *OdooConfig) (OdooMetadataResult, error) {
+	log := odooCfg.Log
+	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "get_metadata", cmd.IDS)
+	if err != nil {
+		log.Error(err)
+		return OdooMetadataResult{}, err
+	}
+	log.Info(fmt.Sprintf("%+v", odooResponse))
+	var odooMetadataResult OdooMetadataResult
+	err = mapstructure.Decode(odooResponse.Result, &odooMetadataResult)
+	if err != nil {
+		log.Error(err)
+		return OdooMetadataResult{}, err
+	}
+	return odooMetadataResult, nil
+}
 func (server *Server) FieldsViewGet(cmd *Command, odooCfg *OdooConfig) ([]string, error) {
 	log := odooCfg.Log
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "fields_view_get", nil, "tree")

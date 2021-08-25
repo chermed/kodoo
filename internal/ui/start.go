@@ -11,6 +11,9 @@ type Options struct {
 	App               *tview.Application
 	Header            *tview.Grid
 	Footer            *tview.Grid
+	Details           *tview.Grid
+	MetadataGrid      *tview.Grid
+	Metadata          *tview.Grid
 	MainContainer     *tview.Grid
 	Layout            *tview.Grid
 	Config            *config.Config
@@ -36,6 +39,9 @@ func AppRun(cfg config.Config) {
 	searchBar := tview.NewGrid()
 	inputField := tview.NewInputField()
 	layout := tview.NewGrid()
+	details := tview.NewGrid()
+	metadata := tview.NewGrid()
+	metadataGrid := tview.NewGrid()
 	confirmationModal := tview.NewModal()
 	confirmation := tview.NewGrid()
 	if cfg.MetaConfig.DefaultLimit == 0 {
@@ -45,6 +51,9 @@ func AppRun(cfg config.Config) {
 		App:               app,
 		Header:            header,
 		Footer:            footer,
+		Details:           details,
+		MetadataGrid:      metadataGrid,
+		Metadata:          metadata,
 		MainContainer:     mainContainer,
 		Layout:            layout,
 		Config:            &cfg,
@@ -69,6 +78,8 @@ func AppRun(cfg config.Config) {
 	pages.AddPage("main", layout, true, true)
 	pages.AddPage("home", home, true, false)
 	pages.AddPage("confirmation", confirmation, true, false)
+	pages.AddPage("details", details, true, false)
+	pages.AddPage("metadata", metadataGrid, true, false)
 	if cfg.MetaConfig.DefaultMacro != "" {
 		macroCommand, err := getCommandFromMacro(cfg.MetaConfig.DefaultMacro, options)
 		if err != nil {
@@ -98,7 +109,9 @@ func resetLayout(options *Options) {
 func setupLayout(options *Options, noHeader bool, noSearchBar bool, noFooter bool) {
 	options.Layout.Clear()
 	options.Layout.SetColumns(0)
-	setupConfirmation(options.Confirmation, options)
+	setupConfirmation(options)
+	setupMetadataGrid(options)
+	setupDetails(options)
 	if noHeader && noSearchBar && noFooter {
 		options.Layout.SetRows(0)
 	} else if noHeader && noSearchBar {

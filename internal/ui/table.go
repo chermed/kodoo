@@ -297,6 +297,10 @@ func checkTableNavigationShortcuts(table *tview.Table, event *tcell.EventKey, op
 		goToLastPage(options)
 	} else if event.Rune() == 'r' {
 		refreshPage(options, true)
+	} else if event.Rune() == 'd' {
+		showDetails(options)
+	} else if event.Rune() == 'm' {
+		showMetadata(options)
 	} else if event.Rune() == '?' {
 		showHome(options)
 	}
