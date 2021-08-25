@@ -50,6 +50,14 @@ func NewCommand(odooCfg *OdooConfig, model string, domain [][]interface{}, field
 	return cmd
 }
 
+func NewCommandIDs(model string, ids []int) *Command {
+	cmd := &Command{
+		Model: model,
+		IDS:   ids,
+	}
+	return cmd
+}
+
 func (cmd *Command) SetID(id int) {
 	cmd.Domain = [][]interface{}{
 		{"id", "=", id},

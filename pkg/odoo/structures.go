@@ -23,9 +23,16 @@ type OdooFieldInfo struct {
 	Searchable       bool          `mapstructure:"searchable"`
 	Sortable         bool          `mapstructure:"sortable"`
 }
-type OdooMetadataResult struct {
-	ID int `mapstructure:"id"`
+type OdooMetadataItem struct {
+	ID         int           `mapstructure:"id"`
+	XMLID      interface{}   `mapstructure:"xmlid"`
+	NoUpdate   interface{}   `mapstructure:"noupdate"`
+	CreateUID  []interface{} `mapstructure:"create_uid"`
+	CreateDate interface{}   `mapstructure:"create_date"`
+	WriteUID   []interface{} `mapstructure:"write_uid"`
+	WriteDate  interface{}   `mapstructure:"write_date"`
 }
+type OdooMetadataResult []OdooMetadataItem
 type OdooFieldsResult map[string]OdooFieldInfo
 type OdooFieldsViewGetResult struct {
 	Arch      string `mapstructure:"arch"`

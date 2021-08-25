@@ -1,10 +1,13 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/rivo/tview"
 )
 
-func addField(options *Options, grid *tview.Grid, row int, col int, label string, value string, isError bool, margin bool) (*tview.TextView, *tview.TextView, *tview.TextView) {
+func addField(options *Options, grid *tview.Grid, row int, col int, label string, rawValue interface{}, isError bool, margin bool) (*tview.TextView, *tview.TextView, *tview.TextView) {
+	value := fmt.Sprintf("%v", rawValue)
 	if margin {
 		label = " " + label
 	}

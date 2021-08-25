@@ -176,13 +176,14 @@ func (server *Server) Metadata(cmd *Command, odooCfg *OdooConfig) (OdooMetadataR
 		log.Error(err)
 		return OdooMetadataResult{}, err
 	}
-	log.Info(fmt.Sprintf("%+v", odooResponse))
+	log.Info(fmt.Sprintf("--- %+v", odooResponse))
 	var odooMetadataResult OdooMetadataResult
 	err = mapstructure.Decode(odooResponse.Result, &odooMetadataResult)
 	if err != nil {
 		log.Error(err)
 		return OdooMetadataResult{}, err
 	}
+	log.Info(fmt.Sprintf("=== %+v", odooMetadataResult))
 	return odooMetadataResult, nil
 }
 func (server *Server) FieldsViewGet(cmd *Command, odooCfg *OdooConfig) ([]string, error) {
