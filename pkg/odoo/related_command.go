@@ -1,19 +1,21 @@
 package odoo
 
 type RelatedCommand struct {
-	Model   string
-	Field   string
-	IDs     []int
-	Score   int
-	Context OdooContext
+	Model       string
+	Field       string
+	IDs         []int
+	Score       int
+	Description string
+	Context     OdooContext
 }
 
-func NewRelatedCommand(odooCfg *OdooConfig, model string, field string, ids []int, context OdooContext) *RelatedCommand {
+func NewRelatedCommand(odooCfg *OdooConfig, model string, field string, ids []int, description string, context OdooContext) *RelatedCommand {
 	rcmd := &RelatedCommand{
-		Model:   model,
-		Field:   field,
-		Context: context,
-		IDs:     ids,
+		Model:       model,
+		Field:       field,
+		Context:     context,
+		IDs:         ids,
+		Description: description,
 	}
 	return rcmd
 }

@@ -296,7 +296,6 @@ func getTableModelIDs(options *Options, selection bool) (model string, ids []int
 			odooCellReference := cell.Reference.(*OdooCellReference)
 			model = odooCellReference.Model
 			ids = append(ids, odooCellReference.ID)
-
 		}
 	} else {
 		for row := 0; row < table.GetRowCount(); row++ {
@@ -343,6 +342,8 @@ func checkTableNavigationShortcuts(table *tview.Table, event *tcell.EventKey, op
 		showDetails(options)
 	} else if event.Rune() == 'm' {
 		showMetadata(options)
+	} else if event.Rune() == 's' {
+		showShortcuts(options)
 	} else if event.Rune() == '?' {
 		showHome(options)
 	}
@@ -373,7 +374,7 @@ func checkTableSearchBarShortcuts(event *tcell.EventKey, options *Options) *tcel
 }
 func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, options *Options) *tcell.EventKey {
 	if event.Key() == tcell.KeyEnter {
-		model, ids, err := getTableModelIDs(options, true)
+		_, ids, err := getTableModelIDs(options, true)
 		if err != nil {
 			showInfo(err.Error(), options, tcell.ColorRed)
 		} else {
@@ -382,7 +383,7 @@ func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, opt
 				showInfo(err.Error(), options, tcell.ColorRed)
 				return event
 			}
-			rcmds, err := odoo.GetRelatedCommands(options.OdooCfg, lastCommand, model)
+			rcmds, err := odoo.GetRelatedCommands(options.OdooCfg, lastCommand)
 			if err != nil {
 				showInfo(err.Error(), options, tcell.ColorRed)
 				return event

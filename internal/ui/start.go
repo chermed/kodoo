@@ -14,6 +14,8 @@ type Options struct {
 	Details           *tview.Grid
 	MetadataGrid      *tview.Grid
 	Metadata          *tview.Grid
+	ShortcutsGrid     *tview.Grid
+	Shortcuts         *tview.List
 	MainContainer     *tview.Grid
 	Layout            *tview.Grid
 	Config            *config.Config
@@ -42,6 +44,8 @@ func AppRun(cfg config.Config) {
 	details := tview.NewGrid()
 	metadata := tview.NewGrid()
 	metadataGrid := tview.NewGrid()
+	shortcuts := tview.NewList()
+	shortcutsGrid := tview.NewGrid()
 	confirmationModal := tview.NewModal()
 	confirmation := tview.NewGrid()
 	if cfg.MetaConfig.DefaultLimit == 0 {
@@ -54,6 +58,8 @@ func AppRun(cfg config.Config) {
 		Details:           details,
 		MetadataGrid:      metadataGrid,
 		Metadata:          metadata,
+		ShortcutsGrid:     shortcutsGrid,
+		Shortcuts:         shortcuts,
 		MainContainer:     mainContainer,
 		Layout:            layout,
 		Config:            &cfg,
@@ -80,6 +86,7 @@ func AppRun(cfg config.Config) {
 	pages.AddPage("confirmation", confirmation, true, false)
 	pages.AddPage("details", details, true, false)
 	pages.AddPage("metadata", metadataGrid, true, false)
+	pages.AddPage("shortcuts", shortcutsGrid, true, false)
 	if cfg.MetaConfig.DefaultMacro != "" {
 		macroCommand, err := getCommandFromMacro(cfg.MetaConfig.DefaultMacro, options)
 		if err != nil {
@@ -112,6 +119,7 @@ func setupLayout(options *Options, noHeader bool, noSearchBar bool, noFooter boo
 	setupConfirmation(options)
 	setupMetadataGrid(options)
 	setupDetails(options)
+	setupShortcutsGrid(options)
 	if noHeader && noSearchBar && noFooter {
 		options.Layout.SetRows(0)
 	} else if noHeader && noSearchBar {

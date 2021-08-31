@@ -55,7 +55,7 @@ func getNote(options *Options) *tview.Grid {
 	noteGrid := tview.NewGrid().
 		SetRows(0).
 		SetColumns(0)
-	noteGrid.SetBorder(true).SetTitle(" Note ")
+	noteGrid.SetBorder(true).SetTitle(" Notes ")
 	noteGrid.SetBackgroundColor(options.Skin.BackgroundColor)
 	noteGrid.SetBorderColor(options.Skin.BorderColor)
 	noteGrid.SetTitleColor(options.Skin.TitleColor)
@@ -108,16 +108,17 @@ func getTableShortcuts(options *Options) *tview.Grid {
 	tableShortcutsGrid.SetBackgroundColor(options.Skin.BackgroundColor)
 	tableShortcutsGrid.SetBorderColor(options.Skin.BorderColor)
 	tableShortcutsGrid.SetTitleColor(options.Skin.TitleColor)
-	addField(options, tableShortcutsGrid, 0, 0, "n", "go to the next page", false, false)
-	addField(options, tableShortcutsGrid, 1, 0, "p", "go to the previous page", false, false)
-	addField(options, tableShortcutsGrid, 2, 0, "l", "go to the last page", false, false)
-	addField(options, tableShortcutsGrid, 3, 0, "f", "go to the first page", false, false)
-	addField(options, tableShortcutsGrid, 4, 0, "r", "refresh the data", false, false)
-	addField(options, tableShortcutsGrid, 5, 0, "Key <ENTER>", "open related records", false, false)
-	addField(options, tableShortcutsGrid, 6, 0, "!FuncName", "execute the remote function <FuncName>", false, false)
-	addField(options, tableShortcutsGrid, 7, 0, "/filter", "filter the records", false, false)
-	addField(options, tableShortcutsGrid, 8, 0, "", "", false, false)
-	addField(options, tableShortcutsGrid, 9, 0, "", "", false, false)
+	addField(options, tableShortcutsGrid, 0, 0, "n", "Go to the next page", false, false)
+	addField(options, tableShortcutsGrid, 1, 0, "p", "Go to the previous page", false, false)
+	addField(options, tableShortcutsGrid, 2, 0, "l", "Go to the last page", false, false)
+	addField(options, tableShortcutsGrid, 3, 0, "f", "Go to the first page", false, false)
+	addField(options, tableShortcutsGrid, 4, 0, "r", "Refresh the data", false, false)
+	addField(options, tableShortcutsGrid, 5, 0, "m", "Show metadata", false, false)
+	addField(options, tableShortcutsGrid, 6, 0, "d", "Show details", false, false)
+	addField(options, tableShortcutsGrid, 7, 0, "Key <ENTER>", "Open related records", false, false)
+	addField(options, tableShortcutsGrid, 8, 0, "!FuncName", "Execute the remote function <FuncName>", false, false)
+	addField(options, tableShortcutsGrid, 9, 0, "/filter", "Filter the records", false, false)
+
 	return tableShortcutsGrid
 }
 func getHelpFooter(options *Options) *tview.Grid {
