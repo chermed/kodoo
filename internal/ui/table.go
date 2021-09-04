@@ -69,7 +69,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			SetSelectable(true).
 			SetExpansion(0).
 			SetBackgroundColor(options.Skin.BackgroundColor).
-			SetTextColor(fgColor)
+			SetTextColor(options.Skin.TitleColor)
 		if kotils.IntInSlice(idx, tableData.Selection) {
 			selectionBodyTableCell.SetText("*")
 			table.Select(row+1, 0)
@@ -88,18 +88,18 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 				SetBackgroundColor(options.Skin.BackgroundColor).
 				SetTextColor(fgColor)
 			fieldName := headerValueMap[column]
-			odooCelleReference := &OdooCellReference{
+			odooCellReference := &OdooCellReference{
 				FieldName: fieldName,
 				Model:     tableData.Model,
 			}
-			tableCell = tableCell.SetReference(odooCelleReference)
+			tableCell = tableCell.SetReference(odooCellReference)
 			item := lines[fieldName]
 			strValue := ""
 			switch item.Type {
 			case "char", "string", "selection", "text":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				default:
 					strValue = item.Value.(string)
 					if fieldName == "state" {
@@ -113,7 +113,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "date":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				default:
 					layout := "2006-01-02"
 					var date_format string
@@ -134,7 +134,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "datetime":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				default:
 					layout := "2006-01-02 15:04:05"
 					var datetime_format string
@@ -165,10 +165,10 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "many2one":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				case []interface{}:
 					if len(item.Value.([]interface{})) == 0 {
-						strValue = "⛔"
+						strValue = emoji.Sprint("⛔")
 					} else if options.Config.MetaConfig.ShowIDs {
 						strValue = fmt.Sprintf("%v", item.Value)
 					} else if len(item.Value.([]interface{})) == 2 {
@@ -180,10 +180,10 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "many2many":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				case []interface{}:
 					if len(item.Value.([]interface{})) == 0 {
-						strValue = "⛔"
+						strValue = emoji.Sprint("⛔")
 					} else if options.Config.MetaConfig.ShowIDs {
 						strValue = fmt.Sprintf("%v", item.Value)
 					} else {
@@ -193,10 +193,10 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "one2many":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				case []interface{}:
 					if len(item.Value.([]interface{})) == 0 {
-						strValue = "⛔"
+						strValue = emoji.Sprint("⛔")
 					} else {
 						strValue = getX2ManyStrValue(options, fieldName, tableData.X2ManyData, item.Value.([]interface{}))
 					}
@@ -210,9 +210,9 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "binary":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				default:
-					strValue = "📚"
+					strValue = emoji.Sprint("📚")
 				}
 			case "raw":
 				strValue = fmt.Sprintf("%+v", item.Value)

@@ -2,6 +2,7 @@ package odoo
 
 import (
 	"math"
+	"sort"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -54,8 +55,29 @@ func NewCommandIDs(model string, ids []int) *Command {
 	cmd := &Command{
 		Model: model,
 		IDS:   ids,
+		Domain: [][]interface{}{
+			{
+				"id", "in", ids,
+			},
+		},
 	}
 	return cmd
+}
+
+func (cmd *Command) UseAllFields() {
+	fields := []string{}
+	for field := range cmd.AllFields {
+		fields = append(fields, field)
+	}
+	sort.Strings(fields)
+	cmd.Fields = fields
+}
+
+func (cmd *Command) SetFieldsUpdated() {
+	cmd.FieldsUpdated = true
+}
+func (cmd *Command) AreFieldsUpdated() bool {
+	return cmd.FieldsUpdated
 }
 
 func (cmd *Command) SetID(id int) {
@@ -65,7 +87,7 @@ func (cmd *Command) SetID(id int) {
 }
 
 func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) error {
-	if cmd.FieldsUpdated {
+	if cmd.AreFieldsUpdated() {
 		return nil
 	}
 	var wg sync.WaitGroup
@@ -154,6 +176,6 @@ func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) err
 		}
 	}
 
-	cmd.FieldsUpdated = true
+	cmd.SetFieldsUpdated()
 	return nil
 }

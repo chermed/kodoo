@@ -64,7 +64,7 @@ func startUI(cmd *cobra.Command, args []string) {
 	if err == nil {
 		log.Out = f
 	} else {
-		log.Info("Failed to log to file, using default stderr")
+		log.Warn("Failed to log to file, using default stderr")
 	}
 	cfg.Log = log
 	cfg.Version = Version

@@ -171,19 +171,20 @@ func (server *Server) NameGet(cmd *Command, odooCfg *OdooConfig) (OdooNameGetRes
 }
 func (server *Server) Metadata(cmd *Command, odooCfg *OdooConfig) (OdooMetadataResult, error) {
 	log := odooCfg.Log
+	if len(cmd.IDS) == 0 {
+		return OdooMetadataResult{}, fmt.Errorf("No IDS provided to read metadata")
+	}
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "get_metadata", cmd.IDS)
 	if err != nil {
 		log.Error(err)
 		return OdooMetadataResult{}, err
 	}
-	log.Info(fmt.Sprintf("--- %+v", odooResponse))
 	var odooMetadataResult OdooMetadataResult
 	err = mapstructure.Decode(odooResponse.Result, &odooMetadataResult)
 	if err != nil {
 		log.Error(err)
 		return OdooMetadataResult{}, err
 	}
-	log.Info(fmt.Sprintf("=== %+v", odooMetadataResult))
 	return odooMetadataResult, nil
 }
 func (server *Server) FieldsViewGet(cmd *Command, odooCfg *OdooConfig) ([]string, error) {
