@@ -10,7 +10,7 @@ import (
 
 func GetRelatedCommands(odoocfg *OdooConfig, lastCommand *Command) ([]RelatedCommand, error) {
 	rcmds := []RelatedCommand{}
-	for _, spec := range lastCommand.AllFields {
+	for fieldName, spec := range lastCommand.AllFields {
 		if spec.Type == "one2many" && spec.Relation != "" && spec.RelationField != "" {
 			rcmd := NewRelatedCommand(
 				odoocfg,
@@ -18,8 +18,10 @@ func GetRelatedCommands(odoocfg *OdooConfig, lastCommand *Command) ([]RelatedCom
 				spec.RelationField,
 				[]int{},
 				spec.Description,
+				spec.Type,
 				OdooContext{},
 			)
+			rcmd.OriginField = fieldName
 			if spec.Relation == fmt.Sprintf("%s.line", lastCommand.Model) {
 				rcmd.Score = 10
 			} else if strings.HasPrefix(spec.Relation, lastCommand.Model) {

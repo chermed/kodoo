@@ -13,7 +13,7 @@ func setupShortcutsGrid(options *Options) *tview.Grid {
 	grid := options.ShortcutsGrid
 	grid.Clear()
 	grid.SetBackgroundColor(options.Skin.BackgroundColor)
-	grid.SetColumns(0, 60, 0).SetRows(0, 30, 0)
+	grid.SetColumns(0, 80, 0).SetRows(0, 30, 0)
 	grid.AddItem(getShortcuts(options), 1, 1, 1, 1, 0, 0, true)
 	return grid
 }
@@ -29,7 +29,7 @@ func getShortcuts(options *Options) *tview.List {
 				showInfo(err.Error(), options, tcell.ColorRed)
 				return event
 			}
-			model, _ := shortcuts.GetItemText(shortcuts.GetCurrentItem())
+			_, model := shortcuts.GetItemText(shortcuts.GetCurrentItem())
 			lastCommand, err := options.CommandsHistory.GetCommand()
 			if err != nil {
 				showInfo(err.Error(), options, tcell.ColorRed)
@@ -47,11 +47,11 @@ func getShortcuts(options *Options) *tview.List {
 			}
 			rcmd.SetIDs(ids)
 			cmd := rcmd.GetCommand(options.OdooCfg)
-			options.CommandsHistory.AddCommand(cmd)
-			err = showSearchReadResult(cmd, options)
-			if err != nil {
+			if err = showSearchReadResult(cmd, options); err != nil {
 				showInfo(err.Error(), options, tcell.ColorRed)
 				return event
+			} else {
+				options.CommandsHistory.AddCommand(cmd)
 			}
 			goToMainPage(options)
 		}
@@ -70,8 +70,8 @@ func showShortcuts(options *Options) {
 		return
 	}
 	for _, rcmd := range rcmds {
-		description := fmt.Sprintf("> %s", rcmd.Description)
-		shortcuts.AddItem(rcmd.Model, description, 0, nil)
+		description := fmt.Sprintf("> %s (field: %s, type: %s)", rcmd.Description, rcmd.OriginField, rcmd.Type)
+		shortcuts.AddItem(description, rcmd.Model, 0, nil)
 	}
 	options.Pages.ShowPage("shortcuts")
 }

@@ -58,4 +58,7 @@ The features to be introduced are :
 5. List and change the databases
 6.  Ensure compatibility with more Odoo versions
 7.  Add the readonly mode
-8.  Add the zen mode (focus on data)    
+8.  Add the zen mode (focus on data)  
+9.  Brew install
+10. Snap Install
+11. Update the help page with all shortcuts  

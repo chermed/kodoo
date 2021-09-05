@@ -33,7 +33,7 @@ func getX2ManyStrValue(options *Options, fieldName string, x2ManyData odoo.X2Man
 	return strings.Join(names, ", ")
 }
 func getTableScreen(tableData data.Data, options *Options) *tview.Table {
-	log := options.Config.Log
+	// log := options.Config.Log
 	table := tview.NewTable().
 		SetFixed(1, 2).SetSelectable(true, false)
 	table.SetBackgroundColor(options.Skin.BackgroundColor)
@@ -217,8 +217,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "raw":
 				strValue = fmt.Sprintf("%+v", item.Value)
 			default:
-				log.Error("new type detected: ", item.Type, " Value=", item.Value, " HEADER=", headerValueMap[column], " model=", tableData.Model, " Type=", fmt.Sprintf("%T", item.Value))
-				strValue = emoji.Sprint("👽")
+				strValue = fmt.Sprintf("%+v", item.Value)
 			}
 			tableCell.SetText(strValue)
 			if column == 0 {

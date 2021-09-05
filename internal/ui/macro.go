@@ -25,6 +25,8 @@ func listMacros(options *Options) error {
 			} else {
 				if err := showSearchReadResult(macroCommand, options); err != nil {
 					showError(err, options)
+				} else {
+					options.CommandsHistory.AddCommand(macroCommand)
 				}
 			}
 		}
