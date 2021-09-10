@@ -3,6 +3,7 @@ package odoo
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	strLib "github.com/mgutz/str"
@@ -65,6 +66,14 @@ func StringToCommand(cmd *Command, str string) error {
 	domains := make([][]interface{}, 0)
 	for _, part := range parts {
 		if len(part) == 0 {
+			continue
+		}
+		if strings.HasPrefix(part, "%") {
+			limit, err := strconv.Atoi(part[1:])
+			if err != nil {
+				return err
+			}
+			cmd.Limit = limit
 			continue
 		}
 		domainEqualParts := strings.Split(part, "=")

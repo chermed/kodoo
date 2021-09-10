@@ -1,0 +1,59 @@
+# This is an example .goreleaser.yml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+# dockers:
+#   - goos: linux
+#     goarch: amd64
+#     dockerfile: Dockerfile
+#     image_templates:
+#     - "docker.io/chermed/kodoo:latest"
+#     - "docker.io/chermed/kodoo:{{ .Tag }}"
+#     - "docker.io/chermed/kodoo:v{{ .Major }}{{ .Minor }}"
+#   - goos: linux
+#     goarch: amd64
+#     dockerfile: Dockerfile
+#     image_templates:
+#     - "docker.io/chermed/kodoo:latest"
+#     - "docker.io/chermed/kodoo:{{ .Tag }}"
+#     - "docker.io/chermed/kodoo:v{{ .Major }}{{ .Minor }}"
+#   - goos: linux
+#     goarch: arm64
+#     dockerfile: Dockerfile
+#     image_templates:
+#     - "docker.io/chermed/kodoo:arm-{{ .Tag }}"
+#     - "docker.io/chermed/kodoo:arm-v{{ .Major }}.{{ .Minor }}"
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+# Homebrew
+brews:
+  - name: kodoo
+    tap:
+      owner: chermed
+      name: homebrew-kodoo
+    commit_author:
+      name: chermed
+      email: chermed@gmail.com
+    folder: Formula
+    homepage: https://github.com/chermed/kodoo
+    description: Terminal UI for Odoo
+    test: |
+      system "kodoo version"
