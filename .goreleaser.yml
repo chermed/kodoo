@@ -11,27 +11,28 @@ builds:
       - linux
       - windows
       - darwin
-# dockers:
-#   - goos: linux
-#     goarch: amd64
-#     dockerfile: Dockerfile
-#     image_templates:
-#     - "docker.io/chermed/kodoo:latest"
-#     - "docker.io/chermed/kodoo:{{ .Tag }}"
-#     - "docker.io/chermed/kodoo:v{{ .Major }}{{ .Minor }}"
-#   - goos: linux
-#     goarch: amd64
-#     dockerfile: Dockerfile
-#     image_templates:
-#     - "docker.io/chermed/kodoo:latest"
-#     - "docker.io/chermed/kodoo:{{ .Tag }}"
-#     - "docker.io/chermed/kodoo:v{{ .Major }}{{ .Minor }}"
-#   - goos: linux
-#     goarch: arm64
-#     dockerfile: Dockerfile
-#     image_templates:
-#     - "docker.io/chermed/kodoo:arm-{{ .Tag }}"
-#     - "docker.io/chermed/kodoo:arm-v{{ .Major }}.{{ .Minor }}"
+      
+dockers:
+  - goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
+    image_templates:
+    - "docker.io/chermed/kodoo:latest"
+    - "docker.io/chermed/kodoo:{{ .Tag }}"
+    - "docker.io/chermed/kodoo:v{{ .Major }}{{ .Minor }}"
+  - goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
+    image_templates:
+    - "docker.io/chermed/kodoo:latest"
+    - "docker.io/chermed/kodoo:{{ .Tag }}"
+    - "docker.io/chermed/kodoo:v{{ .Major }}{{ .Minor }}"
+  - goos: linux
+    goarch: arm64
+    dockerfile: Dockerfile
+    image_templates:
+    - "docker.io/chermed/kodoo:arm-{{ .Tag }}"
+    - "docker.io/chermed/kodoo:arm-v{{ .Major }}.{{ .Minor }}"
 
 checksum:
   name_template: 'checksums.txt'
@@ -43,7 +44,7 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-# Homebrew
+
 brews:
   - name: kodoo
     tap:
