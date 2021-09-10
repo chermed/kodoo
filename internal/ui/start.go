@@ -16,6 +16,9 @@ type Options struct {
 	Metadata          *tview.Grid
 	ShortcutsGrid     *tview.Grid
 	Shortcuts         *tview.List
+	ListDatabasesGrid *tview.Grid
+	ListDatabasesForm *tview.Form
+	ListDatabases     *tview.List
 	MainContainer     *tview.Grid
 	Layout            *tview.Grid
 	Config            *config.Config
@@ -46,6 +49,9 @@ func AppRun(cfg config.Config) {
 	metadataGrid := tview.NewGrid()
 	shortcuts := tview.NewList()
 	shortcutsGrid := tview.NewGrid()
+	listDatabases := tview.NewList()
+	listDatabasesGrid := tview.NewGrid()
+	listDatabasesForm := tview.NewForm()
 	confirmationModal := tview.NewModal()
 	confirmation := tview.NewGrid()
 	if cfg.MetaConfig.DefaultLimit == 0 {
@@ -60,6 +66,9 @@ func AppRun(cfg config.Config) {
 		Metadata:          metadata,
 		ShortcutsGrid:     shortcutsGrid,
 		Shortcuts:         shortcuts,
+		ListDatabasesGrid: listDatabasesGrid,
+		ListDatabasesForm: listDatabasesForm,
+		ListDatabases:     listDatabases,
 		MainContainer:     mainContainer,
 		Layout:            layout,
 		Config:            &cfg,
@@ -87,6 +96,7 @@ func AppRun(cfg config.Config) {
 	pages.AddPage("details", details, true, false)
 	pages.AddPage("metadata", metadataGrid, true, false)
 	pages.AddPage("shortcuts", shortcutsGrid, true, false)
+	pages.AddPage("listDatabases", listDatabasesGrid, true, false)
 	if cfg.MetaConfig.DefaultMacro != "" {
 		macroCommand, err := getCommandFromMacro(cfg.MetaConfig.DefaultMacro, options)
 		if err != nil {
@@ -120,6 +130,7 @@ func setupLayout(options *Options, noHeader bool, noSearchBar bool, noFooter boo
 	setupMetadataGrid(options)
 	setupDetails(options)
 	setupShortcutsGrid(options)
+	setupListDatabasesGrid(options)
 	if noHeader && noSearchBar && noFooter {
 		options.Layout.SetRows(0)
 	} else if noHeader && noSearchBar {

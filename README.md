@@ -51,14 +51,8 @@ Check the [release page](https://github.com/chermed/kodoo/releases)
 
 The features to be introduced are :
 
-1. Show shortcuts for different relations
-2. Call a remote function for many records (multiple selection)
-3. See details of a record (show all fields values)
-4. See metadata of a record
-5. List and change the databases
-6.  Ensure compatibility with more Odoo versions
-7.  Add the readonly mode
-8.  Add the zen mode (focus on data)  
-9.  Brew install
-10. Snap Install
-11. Update the help page with all shortcuts  
+1.  Ensure compatibility with more Odoo versions
+2.  Add the readonly mode
+3.  Add the zen mode (focus on data)  
+4.  Brew install
+5.  Snap Install

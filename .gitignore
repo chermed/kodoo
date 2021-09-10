@@ -17,3 +17,5 @@ config.yaml
 *.log
 .vscode
 kodoo
+
+dist/

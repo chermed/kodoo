@@ -87,6 +87,7 @@ func (cmd *Command) SetID(id int) {
 }
 
 func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) error {
+	log := odooCfg.Log
 	if cmd.AreFieldsUpdated() {
 		return nil
 	}
@@ -115,6 +116,7 @@ func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) err
 	wg.Wait()
 
 	if sharedError != nil {
+		log.Error(sharedError)
 		return sharedError
 	}
 	if cmd.Limit > 0 {

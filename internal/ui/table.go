@@ -331,9 +331,9 @@ func checkTableNavigationShortcuts(table *tview.Table, event *tcell.EventKey, op
 		goToNextPage(options)
 	} else if event.Rune() == 'p' {
 		goToPreviousPage(options)
-	} else if event.Rune() == 'f' {
+	} else if event.Rune() == '^' {
 		goToFirstPage(options)
-	} else if event.Rune() == 'l' {
+	} else if event.Rune() == '$' {
 		goToLastPage(options)
 	} else if event.Rune() == 'r' {
 		refreshPage(options, true)
