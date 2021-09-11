@@ -9,6 +9,10 @@ This application is calling the Odoo API to scrape the data, it makes an effort 
 
 # Installation :
 
+## Visit the last release page
+
+The [releases page](https://github.com/chermed/kodoo/releases) contains all compiled binaries of this tool
+
 ## Via Homebrew for macOS or LinuxBrew for Linux
 
 ```
@@ -37,7 +41,11 @@ go get -u github.com/chermed/kodoo
 
 ```
 docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest init-config
+```
 
+Edit the generated file, then run:
+
+```
 docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest
 ```
 
@@ -67,24 +75,20 @@ docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest
 # Use cases 
 
 1. For developers :
-   1. Provide a fast way to see IDs and metadata of records.
-   2. Query very easily the data on invisible objects and invisible fields
+   1. Provide a fast way to see technical data (IDs and metadata) of records.
+   2. Query and show invisible objects and invisible fields
 2. For Odoo customers :
    1. Use the Zen mode to display data on a hanging screen (Kitchen for a restaurant, Work orders for the manufacturing, etc)
+   2. Use macros to access easily to custom views and data
 
 # Limitations :
 
 1. Filtering data is basic:
    1. The values in the domain are sent to odoo as strings or list of strings
    2. If many filters are specified the logical operator is `AND`
-2. Binary and reference fields value will not be shown or downloaded
+2. Binary fields value will not be shown or downloaded
 
 
-## Roadmap for the the version v0.3.0
+## Thanks
 
-The features to be introduced are :
-
-1.  Ensure compatibility with more Odoo versions
-2.  Add the zen mode (focus on data)  
-3.  Brew install
-4.  Snap Install
+Thanks to [derailed](https://github.com/derailed) for his [k9s repository](https://github.com/derailed/k9s), it gave me the idea to build this tool.
