@@ -13,6 +13,12 @@ This application is calling the Odoo API to scrape the data, it makes an effort 
 
 The [releases page](https://github.com/chermed/kodoo/releases) contains all compiled binaries of this tool
 
+## Via script for macOS and Linux
+
+```
+curl -sSL https://raw.githubusercontent.com/chermed/kodoo/main/install.sh | sh
+```
+
 ## Via Homebrew for macOS or LinuxBrew for Linux
 
 ```

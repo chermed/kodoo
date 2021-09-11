@@ -60,21 +60,16 @@ snapcrafts:
       386: 32-bit
       darwin: macOS
       linux: Tux
-
     publish: true
-
     summary: Terminal UI for Odoo
     description: Terminal UI for Odoo
-
     channel_templates:
       - edge
       - beta
       - stable
     grade: stable
-
     confinement: classic
     license: MIT
-
     plugs:
       personal-files:
         read:
