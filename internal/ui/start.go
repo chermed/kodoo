@@ -111,6 +111,7 @@ func AppRun(cfg config.Config) {
 			}
 		}
 	} else {
+		setEmptyTextView(options)
 		showHome(options)
 	}
 	startRefreshTicker(options)

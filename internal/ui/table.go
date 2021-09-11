@@ -285,7 +285,7 @@ func mainContainerHasTable(options *Options) bool {
 }
 func getTableModelIDs(options *Options, selection bool) (model string, ids []int, err error) {
 	if !mainContainerHasTable(options) {
-		return model, ids, fmt.Errorf("There is no active table")
+		return model, ids, fmt.Errorf("there is no active table")
 	}
 	table := options.Table
 	if selection {
@@ -314,7 +314,7 @@ func getTableModelIDs(options *Options, selection bool) (model string, ids []int
 	}
 
 	if len(ids) == 0 {
-		err = fmt.Errorf("Please select some items before this action!")
+		err = fmt.Errorf("please select some items before this action")
 	}
 	return model, ids, err
 }

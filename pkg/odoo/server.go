@@ -8,6 +8,7 @@ import (
 type Server struct {
 	Host, Database, User, HiddenPassword, Password string
 	UID                                            int
+	Readonly                                       bool
 }
 
 func NewServer(host, database, user, password string) *Server {

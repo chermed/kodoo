@@ -52,8 +52,6 @@ Check the [release page](https://github.com/chermed/kodoo/releases)
 The features to be introduced are :
 
 1.  Ensure compatibility with more Odoo versions
-2.  Add the readonly mode
-3.  Add the zen mode (focus on data)  
-4.  Brew install
-5.  Snap Install
-6.  Test
+2.  Add the zen mode (focus on data)  
+3.  Brew install
+4.  Snap Install

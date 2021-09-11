@@ -80,7 +80,7 @@ func processInput(value string, options *Options) error {
 	CleanedValue := strings.Trim(value, " ")
 	lowerCleanedValue := strings.ToLower(value)
 	if CleanedValue == "" {
-		err := errors.New("The input is empty")
+		err := errors.New("the input is empty")
 		return showInfo(err.Error(), options, tcell.ColorRed)
 	} else if lowerCleanedValue == "?" {
 		showHome(options)
@@ -93,11 +93,15 @@ func processInput(value string, options *Options) error {
 	} else if lowerCleanedValue == ":o" {
 		return listMacros(options)
 	} else if strings.HasPrefix(CleanedValue, ":") {
-		return fmt.Errorf("Command [%s] not found!", value)
+		return fmt.Errorf("command [%s] not found", value)
 	} else if strings.HasPrefix(CleanedValue, "!") {
+		if err := checkReadonly(options); err != nil {
+			showInfo(err.Error(), options, tcell.ColorRed)
+			return nil
+		}
 		funcValue := strings.Split(CleanedValue[1:], " ")
 		if len(funcValue) == 0 {
-			return fmt.Errorf("Please specify a remote function to execute")
+			return fmt.Errorf("please specify a remote function to execute")
 		}
 		model, ids, err := getTableModelIDs(options, false)
 		if err != nil {

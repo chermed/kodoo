@@ -19,10 +19,12 @@ const (
     database: demo
     user: admin
     password: admin
+	readonly: true
 config:
   default_server: local
   default_limit: 30
   default_macro: customers
+  readonly: false
   timeout: 4
   refresh:
     startup: false
@@ -72,6 +74,7 @@ type MainConfig struct {
 	DefaultServer  string        `mapstructure:"default_server"`
 	DefaultLimit   int           `mapstructure:"default_limit"`
 	DefaultMacro   string        `mapstructure:"default_macro"`
+	Readonly       bool          `mapstructure:"readonly"`
 	Refresh        RefreshConfig `mapstructure:"refresh"`
 	ShowIDs        bool          `mapstructure:"show_ids"`
 	DateFormat     string        `mapstructure:"date_format"`
@@ -127,7 +130,7 @@ func InitConfigFiles() (string, error) {
 	}
 	path := getConfigFilePath()
 	if fileExists(path) {
-		return "", fmt.Errorf("The configuration file already exists")
+		return "", fmt.Errorf("the configuration file already exists")
 	}
 	err = ioutil.WriteFile(path, []byte(sampleConfig), 0644)
 	if err != nil {
@@ -145,7 +148,7 @@ func LoadConfig() {
 	viper.AddConfigPath(getKodooFolder())
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
-		color.Redln(fmt.Errorf("Fatal error: %w \n", err))
+		color.Redln(fmt.Errorf("fatal error: %w", err))
 		os.Exit(255)
 	}
 }
