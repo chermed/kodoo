@@ -2,7 +2,7 @@
 
 **Terminal UI for Odoo**
 
-This application is calling the Odoo API to scrape the data, it makes an effort to show them on terminal with the ability of the navigation, it's destined for Odoo developers and customers, the first release is tested using the version Odoo 14, the next version will be more compatible with many other versions >= 12.0.
+The `kodoo` tool is a Terminal UI for Odoo that allow to show and query the data, it's destined for Odoo developers and for end users.
 
 
 [![asciicast](https://asciinema.org/a/430567.svg)](https://asciinema.org/a/430567)
@@ -11,7 +11,7 @@ This application is calling the Odoo API to scrape the data, it makes an effort 
 
 ## Visit the last release page
 
-The [releases page](https://github.com/chermed/kodoo/releases) contains all compiled binaries of this tool
+The [release page](https://github.com/chermed/kodoo/releases/latest) contains all compiled binaries of this tool
 
 ## Via script for macOS and Linux
 
@@ -44,9 +44,13 @@ go get -u github.com/chermed/kodoo
 snap install kodoo --channel=beta
 ```
 
+## For Windows
+
+Get the executable from the [release page]([htt](https://github.com/chermed/kodoo/releases/latest)
+
 ## Using docker
 
-`docker pull chermed/kodoo`
+The image is `docker.io/chermed/kodoo`
 
 ```
 docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest init-config
@@ -100,4 +104,4 @@ docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest
 
 ## Thanks
 
-Thanks to [derailed](https://github.com/derailed) for his amazing [k9s repository](https://github.com/derailed/k9s), it gave me the idea to build this tool.
+Thanks to [derailed](https://github.com/derailed) for his awesome [k9s tool](https://github.com/derailed/k9s), it gave me the idea to build this tool.
