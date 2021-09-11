@@ -9,15 +9,46 @@ This application is calling the Odoo API to scrape the data, it makes an effort 
 
 # Installation :
 
-Check the [release page](https://github.com/chermed/kodoo/releases)  
+## Via Homebrew for macOS or LinuxBrew for Linux
+
+```
+brew tap chermed/kodoo
+brew install chermed/kodoo/kodoo
+```
+
+### Upgrade :
+
+```
+brew upgrade chermed/kodoo/kodoo
+```
+
+## Via a GO install
+
+```
+go get -u github.com/chermed/kodoo
+```
+
+## Using snap
+
+
+## Using docker
+
+`docker pull chermed/kodoo`
+
+```
+docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest init-config
+
+docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest
+```
 
 # Get started
 
-1. Install the binary using the instructions on the release page
+1. Install the command following the instructions
 2. Initialize the configuration using the command `kodoo init-config` 
 3. Edit the configuration (only the list of servers is mandatory)
 4. Run the command `kodoo`
-5. Start to query the Odoo API
+5. Type `?` to see the help page, and `ESC` to go back to the main page
+6. Start to query the data from a database
 
 
 # Features
@@ -28,8 +59,10 @@ Check the [release page](https://github.com/chermed/kodoo/releases)
 4. Pagination support
 5. Quick access to related records
 6. Auto detection of fields to show as columns in the table
-7. Run remote function on a selected record
+7. Run remote function on a selected records
 8. Sort and filter records
+9. Show metadata and details of a record
+10. Change dynamically the database or the user to use
 
 # Use cases 
 
