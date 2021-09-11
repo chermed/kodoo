@@ -29,13 +29,6 @@ func (server *Server) Authenticate(odooCfg *OdooConfig) (OdooResponse, error) {
 		log.Error(err)
 		return OdooResponse{}, err
 	}
-	session_id := ""
-	for cookieName, cookieValue := range odooResponse.Cookies {
-		if cookieName == "session_id" {
-			session_id = cookieValue
-			break
-		}
-	}
 	var odooUserResult OdooUserResult
 	err = mapstructure.Decode(odooResponse.Result, &odooUserResult)
 	if err != nil {
@@ -43,15 +36,15 @@ func (server *Server) Authenticate(odooCfg *OdooConfig) (OdooResponse, error) {
 		return OdooResponse{}, err
 	}
 	uid := odooUserResult.UID
-	if uid > 0 && session_id != "" {
+	if uid > 0 {
 		server.UID = uid
-		server.SessionID = session_id
-		server.ServerVersion = odooUserResult.ServerVersion
 		return odooResponse, nil
 	} else {
-		return OdooResponse{}, fmt.Errorf("Can not connect to the server [%s] with login=%s and password=%s",
+		err = fmt.Errorf("Can not connect to the server [%s] with login=%s and password=%s",
 			server.Host,
 			server.User,
 			server.HiddenPassword)
+		log.Error(err)
+		return OdooResponse{}, err
 	}
 }

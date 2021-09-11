@@ -7,6 +7,8 @@ import (
 type Skin struct {
 	ModalFgColor         tcell.Color
 	MainFgColor          tcell.Color
+	SecondaryFgColor     tcell.Color
+	OptionalFgColor      tcell.Color
 	FieldLabelColor      tcell.Color
 	FieldValueColor      tcell.Color
 	FieldColonColor      tcell.Color
@@ -29,6 +31,8 @@ func GetColor(hex string) tcell.Color {
 func GetSkin() Skin {
 	skin := Skin{}
 	skin.MainFgColor = GetColor("#86cdf9")
+	skin.SecondaryFgColor = GetColor("#FD971F")
+	skin.OptionalFgColor = GetColor("#FFFFFF")
 	skin.FieldLabelColor = GetColor("#FD971F")
 	skin.FieldValueColor = GetColor("#FFFFFF")
 	skin.FieldColonColor = GetColor("#FD971F")

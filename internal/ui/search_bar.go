@@ -80,7 +80,7 @@ func processInput(value string, options *Options) error {
 	CleanedValue := strings.Trim(value, " ")
 	lowerCleanedValue := strings.ToLower(value)
 	if CleanedValue == "" {
-		err := errors.New("The input is empty")
+		err := errors.New("the input is empty")
 		return showInfo(err.Error(), options, tcell.ColorRed)
 	} else if lowerCleanedValue == "?" {
 		showHome(options)
@@ -93,26 +93,30 @@ func processInput(value string, options *Options) error {
 	} else if lowerCleanedValue == ":o" {
 		return listMacros(options)
 	} else if strings.HasPrefix(CleanedValue, ":") {
-		return fmt.Errorf("Command [%s] not found!", value)
+		return fmt.Errorf("command [%s] not found", value)
 	} else if strings.HasPrefix(CleanedValue, "!") {
+		if err := checkReadonly(options); err != nil {
+			showInfo(err.Error(), options, tcell.ColorRed)
+			return nil
+		}
 		funcValue := strings.Split(CleanedValue[1:], " ")
 		if len(funcValue) == 0 {
-			return fmt.Errorf("Please specify a remote function to execute")
+			return fmt.Errorf("please specify a remote function to execute")
 		}
-		model, name, id, err := getTableModelID(options)
+		model, ids, err := getTableModelIDs(options, false)
 		if err != nil {
 			return showInfo(err.Error(), options, tcell.ColorRed)
 		}
 		funcName := funcValue[0]
-		funcArgs := []interface{}{[]int{id}}
+		funcArgs := []interface{}{ids}
 		if len(funcValue) > 1 {
 			for _, strValue := range funcValue[1:] {
 				funcArgs = append(funcArgs, strValue)
 			}
 		}
-		question := fmt.Sprintf(
-			"Do you want to execute the function <%s> of the object <%s> for %s ?", funcName, model, name)
-		return showConfirmationModal(options, question, func() error {
+		title := fmt.Sprintf("Execute <%s> on %d item(s) ?", funcName, len(ids))
+		question := fmt.Sprintf("Do you want to execute the function <%s> of the object <%s> on %d item(s) ?", funcName, model, len(ids))
+		return showConfirmationModal(options, title, question, func() error {
 			data, err := data.RunRemoteFunction(options.OdooCfg, options.Config, model, funcName, funcArgs...)
 			if err != nil {
 				return showInfo(err.Error(), options, tcell.ColorRed)

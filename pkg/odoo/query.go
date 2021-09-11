@@ -3,25 +3,29 @@ package odoo
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	strLib "github.com/mgutz/str"
 )
 
-func GetRelatedCommands(odoocfg *OdooConfig, lastCommand *Command, model string) ([]RelatedCommand, error) {
+func GetRelatedCommands(odoocfg *OdooConfig, lastCommand *Command) ([]RelatedCommand, error) {
 	rcmds := []RelatedCommand{}
-	for _, spec := range lastCommand.AllFields {
+	for fieldName, spec := range lastCommand.AllFields {
 		if spec.Type == "one2many" && spec.Relation != "" && spec.RelationField != "" {
 			rcmd := NewRelatedCommand(
 				odoocfg,
 				spec.Relation,
 				spec.RelationField,
 				[]int{},
+				spec.Description,
+				spec.Type,
 				OdooContext{},
 			)
-			if spec.Relation == fmt.Sprintf("%s.line", model) {
+			rcmd.OriginField = fieldName
+			if spec.Relation == fmt.Sprintf("%s.line", lastCommand.Model) {
 				rcmd.Score = 10
-			} else if strings.HasPrefix(spec.Relation, model) {
+			} else if strings.HasPrefix(spec.Relation, lastCommand.Model) {
 				rcmd.Score = 2
 			} else {
 				rcmd.Score = 0
@@ -36,6 +40,15 @@ func GetRelatedCommands(odoocfg *OdooConfig, lastCommand *Command, model string)
 		return rcmds[i].Score > rcmds[j].Score
 	})
 	return rcmds, nil
+}
+
+func GetRelatedCommand(model string, rcmds []RelatedCommand) (rcmd RelatedCommand, err error) {
+	for _, item := range rcmds {
+		if item.Model == model {
+			return item, err
+		}
+	}
+	return rcmd, fmt.Errorf("The model %s not found from the related commands", model)
 }
 
 func StringToCommand(cmd *Command, str string) error {
@@ -53,6 +66,14 @@ func StringToCommand(cmd *Command, str string) error {
 	domains := make([][]interface{}, 0)
 	for _, part := range parts {
 		if len(part) == 0 {
+			continue
+		}
+		if strings.HasPrefix(part, "%") {
+			limit, err := strconv.Atoi(part[1:])
+			if err != nil {
+				return err
+			}
+			cmd.Limit = limit
 			continue
 		}
 		domainEqualParts := strings.Split(part, "=")

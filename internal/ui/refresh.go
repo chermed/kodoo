@@ -6,18 +6,10 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func getRefreshIntervalSeconds(options *Options) int {
-	return options.Config.MetaConfig.Refresh.IntervalSeconds
-}
 func autoRefreshIsEnabled(options *Options) bool {
 	return options.Config.MetaConfig.Refresh.Startup
 }
-func enableAutoRefresh(options *Options) {
-	options.Config.MetaConfig.Refresh.Startup = true
-}
-func disableAutoRefresh(options *Options) {
-	options.Config.MetaConfig.Refresh.Startup = false
-}
+
 func toggleAutoRefresh(options *Options) {
 	options.Config.MetaConfig.Refresh.Startup = !options.Config.MetaConfig.Refresh.Startup
 	if autoRefreshIsEnabled(options) {
@@ -33,6 +25,7 @@ func startRefreshTicker(options *Options) {
 	}
 	ticker := time.NewTicker(time.Duration(intervalSeconds) * time.Second)
 	go func() {
+	loop:
 		for {
 			select {
 			case <-ticker.C:
@@ -41,8 +34,7 @@ func startRefreshTicker(options *Options) {
 					setSearchBarFocus(options)
 				}
 			case <-options.Shutdown:
-				break
-
+				break loop
 			}
 		}
 	}()

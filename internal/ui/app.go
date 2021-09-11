@@ -11,8 +11,9 @@ func setupApp(app *tview.Application, options *Options) *tview.Application {
 	app.EnableMouse(true)
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyEscape {
-			options.Pages.SwitchToPage("main")
-			setTableFocus(options)
+			goToMainPage(options)
+		} else if event.Key() == tcell.KeyCtrlD {
+			showListDatabases(options)
 		} else if event.Key() == tcell.KeyCtrlK {
 			setSearchBarText("", options)
 			setSearchBarFocus(options)

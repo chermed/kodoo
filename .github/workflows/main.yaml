@@ -5,7 +5,7 @@ on:
     tags:
       - "v*.*.*"
 jobs:
-  build-docker:
+  release:
     runs-on: ubuntu-20.04
     steps:
       - name: Setup Docker
@@ -15,120 +15,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build docker image
-        run: |
-          version=$(git describe --always --tags)
-          docker build . -t chermed/kodoo:$version -t chermed/kodoo:latest
-          docker push chermed/kodoo:$version 
-          docker push chermed/kodoo:latest
-
-  build-linux:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Install Go
+      - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16
-      - name: Setup GO env
-        run: go env -w CGO_ENABLED=0
+          go-version: 1.17
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Build binary
-        id: build-binary
-        run: |
-          version=$(git describe --always --tags)
-          binaryname=kodoo-$(go env GOOS)-$(go env GOARCH)-$version
-          echo "::set-output name=binaryname::$binaryname"
-          go build -o $binaryname
-      - name: Upload artifact
-        uses: "actions/upload-artifact@v2"
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
         with:
-          name: linux
-          path: ${{ steps.build-binary.outputs.binaryname }}
-
-  build-darwin:
-    runs-on: macos-10.15
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.16
-      - name: Setup GO env
-        run: go env -w CGO_ENABLED=0
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build binary
-        id: build-binary
-        run: |
-          version=$(git describe --always --tags)
-          binaryname=kodoo-$(go env GOOS)-$(go env GOARCH)-$version
-          echo "::set-output name=binaryname::$binaryname"
-          go build -o $binaryname
-      - name: Upload artifact
-        uses: "actions/upload-artifact@v2"
-        with:
-          name: darwin
-          path: ${{ steps.build-binary.outputs.binaryname }}
-
-  build-windows:
-    runs-on: windows-2019
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.16
-      - name: Setup GO env
-        run: go env -w CGO_ENABLED=0
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build binary
-        id: build-binary
-        run: |
-          $version = git describe --always --tags
-          $goos = go env GOOS
-          $goarch = go env GOARCH
-          $binaryname = "kodoo-$goos-$goarch-$version.exe"
-          echo "::set-output name=binaryname::$binaryname"
-          go build -o $binaryname
-      - name: Upload artifact
-        uses: "actions/upload-artifact@v2"
-        with:
-          name: windows
-          path: ${{ steps.build-binary.outputs.binaryname }}
-
-  release:
-    runs-on: ubuntu-20.04
-    needs: [build-docker, build-darwin, build-windows, build-linux]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
-        with:
-          path: ./artifacts/
-      - name: Compute the version
-        id: compute-version 
-        run: |
-            version=$(git describe --always --tags)
-            echo "::set-output name=version::$version"
-      - name: Substite the installations instructions
-        uses: cuchi/jinja2-action@v1.2.0
-        with:
-          template: INSTALL.md
-          output_file: INSTALL.md
-          strict: true
-          variables: |
-            version=${{ steps.compute-version.outputs.version }}
-      - name: Compute the changes
-        run: |
-            cat INSTALL.md >> RELEASE-CHANGES.md
-            echo "" >> RELEASE-CHANGES.md
-            cat CHANGES.md >> RELEASE-CHANGES.md
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            ./artifacts/**/kodoo-*
-          body_path: RELEASE-CHANGES.md
+          distribution: goreleaser
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          

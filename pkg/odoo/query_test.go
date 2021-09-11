@@ -6,7 +6,7 @@ import (
 )
 
 func TestQueryToCommand(t *testing.T) {
-	queryStr := `    sale.order id +name -state partner_id id=3   state=draft,confirm comment=Yesthere!  name~11 `
+	queryStr := `    sale.order id +name -state partner_id id=3 %56  state=draft,confirm comment=Yesthere!  name~11 `
 	cmd := &Command{}
 	err := StringToCommand(cmd, queryStr)
 	if err != nil {
@@ -20,6 +20,9 @@ func TestQueryToCommand(t *testing.T) {
 	}
 	if cmd.Order != "name asc, state desc" {
 		t.Errorf("The expected order isn't good, found=%v", cmd.Order)
+	}
+	if cmd.Limit != 56 {
+		t.Errorf("The limit should be 56, found=%v", cmd.Limit)
 	}
 
 }

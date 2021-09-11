@@ -9,6 +9,7 @@ import (
 )
 
 func (server *Server) SearchRead(cmd *Command, odooCfg *OdooConfig) (OdooReadResult, error) {
+	log := odooCfg.Log
 	if err := cmd.UpdateCommandFields(server, odooCfg); err != nil {
 		return OdooReadResult{}, err
 	}
@@ -19,20 +20,19 @@ func (server *Server) SearchRead(cmd *Command, odooCfg *OdooConfig) (OdooReadRes
 	var odooReadResult OdooReadResult
 	err = mapstructure.Decode(odooResponse.Result, &odooReadResult)
 	if err != nil {
+		log.Error(err)
 		return OdooReadResult{}, err
 	}
 	return odooReadResult, nil
 }
 func (server *Server) ReadOneFieldX2Many(fieldName string, relation string, x2ManyData X2ManyResult, fieldIDs []int, odooCfg *OdooConfig) error {
 	odooCfg.Mutex.Lock()
-	log := odooCfg.Log
 	nameGetCommand := &Command{
 		Model: relation,
 		IDS:   fieldIDs,
 	}
 	nameGetResult, err := server.NameGet(nameGetCommand, odooCfg)
 	if err != nil {
-		log.Error(err)
 		return err
 	}
 	for _, record := range nameGetResult {
@@ -91,7 +91,6 @@ func (server *Server) Search(cmd *Command, odooCfg *OdooConfig) (OdooSearchResul
 	log := odooCfg.Log
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "search", cmd.Domain, cmd.Offset, cmd.Limit, cmd.Order)
 	if err != nil {
-		log.Error(err)
 		return OdooSearchResult{}, err
 	}
 	var odooSearchResult OdooSearchResult
@@ -105,12 +104,10 @@ func (server *Server) Search(cmd *Command, odooCfg *OdooConfig) (OdooSearchResul
 func (server *Server) Read(cmd *Command, ids []int, odooCfg *OdooConfig) (OdooReadResult, error) {
 	log := odooCfg.Log
 	if err := cmd.UpdateCommandFields(server, odooCfg); err != nil {
-		log.Error(err)
 		return OdooReadResult{}, err
 	}
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "read", ids, cmd.Fields)
 	if err != nil {
-		log.Error(err)
 		return OdooReadResult{}, err
 	}
 	var odooReadResult OdooReadResult
@@ -122,10 +119,8 @@ func (server *Server) Read(cmd *Command, ids []int, odooCfg *OdooConfig) (OdooRe
 	return odooReadResult, nil
 }
 func (server *Server) Count(cmd *Command, odooCfg *OdooConfig) (int, error) {
-	log := odooCfg.Log
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "search_count", cmd.Domain)
 	if err != nil {
-		log.Error(err)
 		return 0, err
 	}
 	return int(odooResponse.Result.(float64)), nil
@@ -134,7 +129,6 @@ func (server *Server) Fields(cmd *Command, odooCfg *OdooConfig) (OdooFieldsResul
 	log := odooCfg.Log
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "fields_get")
 	if err != nil {
-		log.Error(err)
 		return OdooFieldsResult{}, err
 	}
 	var odooFieldsResult OdooFieldsResult
@@ -158,7 +152,6 @@ func (server *Server) NameGet(cmd *Command, odooCfg *OdooConfig) (OdooNameGetRes
 	log := odooCfg.Log
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "name_get", cmd.IDS)
 	if err != nil {
-		log.Error(err)
 		return OdooNameGetResult{}, err
 	}
 	var odooNameGetResult OdooNameGetResult
@@ -169,11 +162,29 @@ func (server *Server) NameGet(cmd *Command, odooCfg *OdooConfig) (OdooNameGetRes
 	}
 	return odooNameGetResult, nil
 }
+func (server *Server) Metadata(cmd *Command, odooCfg *OdooConfig) (OdooMetadataResult, error) {
+	log := odooCfg.Log
+	if len(cmd.IDS) == 0 {
+		err := fmt.Errorf("No IDS provided to read metadata")
+		log.Error(err)
+		return OdooMetadataResult{}, err
+	}
+	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "get_metadata", cmd.IDS)
+	if err != nil {
+		return OdooMetadataResult{}, err
+	}
+	var odooMetadataResult OdooMetadataResult
+	err = mapstructure.Decode(odooResponse.Result, &odooMetadataResult)
+	if err != nil {
+		log.Error(err)
+		return OdooMetadataResult{}, err
+	}
+	return odooMetadataResult, nil
+}
 func (server *Server) FieldsViewGet(cmd *Command, odooCfg *OdooConfig) ([]string, error) {
 	log := odooCfg.Log
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "fields_view_get", nil, "tree")
 	if err != nil {
-		log.Error(err)
 		return []string{}, err
 	}
 	var odooFieldsViewGetResult OdooFieldsViewGetResult
@@ -205,7 +216,9 @@ func (server *Server) FieldsViewGet(cmd *Command, odooCfg *OdooConfig) ([]string
 		}
 	}
 	if len(fields) == 0 {
-		return []string{}, fmt.Errorf("No field found using <fields view get>")
+		err = fmt.Errorf("No field found using <fields view get>")
+		log.Error(err)
+		return []string{}, err
 	} else {
 		fields = append(fields[:1], fields[0:]...)
 		fields[0] = "id"
@@ -222,7 +235,6 @@ func (server *Server) FieldsTree(cmd *Command, odooCfg *OdooConfig) ([]string, e
 	treeCommand.FieldsUpdated = true
 	data, err := server.SearchRead(treeCommand, odooCfg)
 	if err != nil {
-		log.Error(err)
 		return []string{}, err
 	}
 	if len(data) == 0 {

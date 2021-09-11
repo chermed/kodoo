@@ -2,6 +2,7 @@ package odoo
 
 import (
 	"math"
+	"sort"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -50,6 +51,35 @@ func NewCommand(odooCfg *OdooConfig, model string, domain [][]interface{}, field
 	return cmd
 }
 
+func NewCommandIDs(model string, ids []int) *Command {
+	cmd := &Command{
+		Model: model,
+		IDS:   ids,
+		Domain: [][]interface{}{
+			{
+				"id", "in", ids,
+			},
+		},
+	}
+	return cmd
+}
+
+func (cmd *Command) UseAllFields() {
+	fields := []string{}
+	for field := range cmd.AllFields {
+		fields = append(fields, field)
+	}
+	sort.Strings(fields)
+	cmd.Fields = fields
+}
+
+func (cmd *Command) SetFieldsUpdated() {
+	cmd.FieldsUpdated = true
+}
+func (cmd *Command) AreFieldsUpdated() bool {
+	return cmd.FieldsUpdated
+}
+
 func (cmd *Command) SetID(id int) {
 	cmd.Domain = [][]interface{}{
 		{"id", "=", id},
@@ -57,7 +87,8 @@ func (cmd *Command) SetID(id int) {
 }
 
 func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) error {
-	if cmd.FieldsUpdated {
+	log := odooCfg.Log
+	if cmd.AreFieldsUpdated() {
 		return nil
 	}
 	var wg sync.WaitGroup
@@ -85,6 +116,7 @@ func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) err
 	wg.Wait()
 
 	if sharedError != nil {
+		log.Error(sharedError)
 		return sharedError
 	}
 	if cmd.Limit > 0 {
@@ -146,6 +178,6 @@ func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) err
 		}
 	}
 
-	cmd.FieldsUpdated = true
+	cmd.SetFieldsUpdated()
 	return nil
 }

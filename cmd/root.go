@@ -13,12 +13,11 @@ import (
 )
 
 const (
-	Version = "0.1.0"
+	Version = "v0.2.0"
 	URL     = "https://github.com/chermed/kodoo"
 )
 
 var (
-	cfgFile string
 	rootCmd = &cobra.Command{
 		Use:   "kodoo",
 		Short: "Kodoo is terminal client for Odoo",
@@ -31,11 +30,12 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringP("macro", "m", "", "The name of the macro to execute")
-	rootCmd.PersistentFlags().StringP("server", "s", "", "The odoo server to use")
-	rootCmd.PersistentFlags().BoolP("no-header", "", false, "Hide the header")
-	rootCmd.PersistentFlags().BoolP("no-password", "", false, "Hide the password")
-	rootCmd.PersistentFlags().IntP("limit", "l", 0, "The limit of records to load")
+	rootCmd.PersistentFlags().StringP("macro", "m", "", "the name of the macro to execute")
+	rootCmd.PersistentFlags().BoolP("readonly", "", false, "activate the global readonly mode")
+	rootCmd.PersistentFlags().StringP("server", "s", "", "the odoo server to use")
+	rootCmd.PersistentFlags().BoolP("no-header", "", false, "hide the header")
+	rootCmd.PersistentFlags().BoolP("no-password", "", false, "hide the password")
+	rootCmd.PersistentFlags().IntP("limit", "l", 0, "the default limit of records to load")
 	rootCmd.PersistentFlags().StringP("logfile", "", "logfile.log", "The path to the logfile")
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(initConfigCmd)
@@ -44,6 +44,7 @@ func init() {
 
 func loadConfigAndViper(cmd *cobra.Command, args []string) {
 	config.LoadConfig()
+	viper.BindPFlag("config.readonly", cmd.PersistentFlags().Lookup("readonly"))
 	viper.BindPFlag("config.default_macro", cmd.PersistentFlags().Lookup("macro"))
 	viper.BindPFlag("config.default_server", cmd.PersistentFlags().Lookup("server"))
 	viper.BindPFlag("config.default_limit", cmd.PersistentFlags().Lookup("limit"))
@@ -54,7 +55,7 @@ func loadConfigAndViper(cmd *cobra.Command, args []string) {
 func startUI(cmd *cobra.Command, args []string) {
 	cfg := config.Config{}
 	if err := viper.Unmarshal(&cfg); err != nil {
-		color.Redln(fmt.Errorf("Error when loading the configuration"))
+		color.Redln(fmt.Errorf("error when loading the configuration"))
 		os.Exit(-1)
 	}
 	var filename string = viper.GetString("config.logfile")
@@ -64,7 +65,7 @@ func startUI(cmd *cobra.Command, args []string) {
 	if err == nil {
 		log.Out = f
 	} else {
-		log.Info("Failed to log to file, using default stderr")
+		log.Warn("failed to log to file, using default stderr")
 	}
 	cfg.Log = log
 	cfg.Version = Version

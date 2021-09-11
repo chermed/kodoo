@@ -3,11 +3,11 @@ package ui
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/chermed/kodoo/internal/data"
+	"github.com/chermed/kodoo/pkg/kotils"
 	"github.com/chermed/kodoo/pkg/odoo"
 	"github.com/kyokomi/emoji"
 
@@ -15,9 +15,14 @@ import (
 	"github.com/rivo/tview"
 )
 
+const (
+	SelectionFieldName = "__selection field__"
+)
+
 type OdooCellReference struct {
 	FieldName string
 	Model     string
+	ID        int
 }
 
 func getX2ManyStrValue(options *Options, fieldName string, x2ManyData odoo.X2ManyResult, ids []interface{}) string {
@@ -28,12 +33,21 @@ func getX2ManyStrValue(options *Options, fieldName string, x2ManyData odoo.X2Man
 	return strings.Join(names, ", ")
 }
 func getTableScreen(tableData data.Data, options *Options) *tview.Table {
-	log := options.Config.Log
+	// log := options.Config.Log
 	table := tview.NewTable().
-		SetFixed(1, 1).SetSelectable(true, false)
+		SetFixed(1, 2).SetSelectable(true, false)
 	table.SetBackgroundColor(options.Skin.BackgroundColor)
 	table.SetBorderColor(options.Skin.BorderColor)
 	table.SetTitleColor(options.Skin.TitleColor)
+	selectionTableCell := tview.NewTableCell("SEL").
+		SetTextColor(tcell.ColorYellow).
+		SetAlign(tview.AlignCenter).
+		SetSelectable(false).
+		SetExpansion(0).
+		SetBackgroundColor(options.Skin.BackgroundColor).
+		SetTextColor(options.Skin.TableHeaderFgColor).
+		SetMaxWidth(5)
+	table.SetCell(0, 0, selectionTableCell)
 	headerValueMap := make(map[int]string)
 	for column, headerValue := range tableData.Header {
 		headerValueMap[column] = headerValue
@@ -44,10 +58,28 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			SetExpansion(1).
 			SetBackgroundColor(options.Skin.BackgroundColor).
 			SetTextColor(options.Skin.TableHeaderFgColor)
-		table.SetCell(0, column, tableCell)
+		table.SetCell(0, column+1, tableCell)
 	}
+	idx := 0
 	for row, lines := range tableData.Lines {
+		lineID := 0
 		fgColor := options.Skin.TableBodyFgColor
+		selectionBodyTableCell := tview.NewTableCell("").
+			SetAlign(tview.AlignCenter).
+			SetSelectable(true).
+			SetExpansion(0).
+			SetBackgroundColor(options.Skin.BackgroundColor).
+			SetTextColor(options.Skin.TitleColor)
+		if kotils.IntInSlice(idx, tableData.Selection) {
+			selectionBodyTableCell.SetText("*")
+			table.Select(row+1, 0)
+		}
+		selectionCellReference := &OdooCellReference{
+			Model:     tableData.Model,
+			FieldName: SelectionFieldName,
+		}
+		selectionBodyTableCell.SetReference(selectionCellReference)
+		table.SetCell(row+1, 0, selectionBodyTableCell)
 		for column := range tableData.Header {
 			tableCell := tview.NewTableCell("").
 				SetAlign(tview.AlignLeft).
@@ -56,18 +88,18 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 				SetBackgroundColor(options.Skin.BackgroundColor).
 				SetTextColor(fgColor)
 			fieldName := headerValueMap[column]
-			odooCelleReference := &OdooCellReference{
+			odooCellReference := &OdooCellReference{
 				FieldName: fieldName,
 				Model:     tableData.Model,
 			}
-			tableCell = tableCell.SetReference(odooCelleReference)
+			tableCell = tableCell.SetReference(odooCellReference)
 			item := lines[fieldName]
 			strValue := ""
 			switch item.Type {
 			case "char", "string", "selection", "text":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				default:
 					strValue = item.Value.(string)
 					if fieldName == "state" {
@@ -81,7 +113,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "date":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				default:
 					layout := "2006-01-02"
 					var date_format string
@@ -102,7 +134,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "datetime":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				default:
 					layout := "2006-01-02 15:04:05"
 					var datetime_format string
@@ -121,16 +153,22 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 
 				}
 			case "float", "monetary":
+				if fieldName == "id" {
+					lineID = int(item.Value.(float64))
+				}
 				strValue = fmt.Sprintf("%f", item.Value.(float64))
 			case "integer":
+				if fieldName == "id" {
+					lineID = int(item.Value.(float64))
+				}
 				strValue = fmt.Sprintf("%d", int(item.Value.(float64)))
 			case "many2one":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				case []interface{}:
 					if len(item.Value.([]interface{})) == 0 {
-						strValue = "⛔"
+						strValue = emoji.Sprint("⛔")
 					} else if options.Config.MetaConfig.ShowIDs {
 						strValue = fmt.Sprintf("%v", item.Value)
 					} else if len(item.Value.([]interface{})) == 2 {
@@ -142,10 +180,10 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "many2many":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				case []interface{}:
 					if len(item.Value.([]interface{})) == 0 {
-						strValue = "⛔"
+						strValue = emoji.Sprint("⛔")
 					} else if options.Config.MetaConfig.ShowIDs {
 						strValue = fmt.Sprintf("%v", item.Value)
 					} else {
@@ -155,10 +193,10 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "one2many":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				case []interface{}:
 					if len(item.Value.([]interface{})) == 0 {
-						strValue = "⛔"
+						strValue = emoji.Sprint("⛔")
 					} else {
 						strValue = getX2ManyStrValue(options, fieldName, tableData.X2ManyData, item.Value.([]interface{}))
 					}
@@ -172,31 +210,33 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			case "binary":
 				switch item.Value.(type) {
 				case bool:
-					strValue = "⛔"
+					strValue = emoji.Sprint("⛔")
 				default:
-					strValue = "📚"
+					strValue = emoji.Sprint("📚")
 				}
 			case "raw":
 				strValue = fmt.Sprintf("%+v", item.Value)
 			default:
-				log.Error("new type detected: ", item.Type, " Value=", item.Value, " HEADER=", headerValueMap[column], " model=", tableData.Model, " Type=", fmt.Sprintf("%T", item.Value))
-				strValue = emoji.Sprint("👽")
+				strValue = fmt.Sprintf("%+v", item.Value)
 			}
 			tableCell.SetText(strValue)
 			if column == 0 {
 				tableCell.SetTextColor(options.Skin.TitleColor)
 			}
-			table.SetCell(row+1, column, tableCell)
+			table.SetCell(row+1, column+1, tableCell)
 		}
 		for column := range tableData.Header {
+			tableCell := table.GetCell(row+1, column)
+			cellRef := tableCell.GetReference().(*OdooCellReference)
+			cellRef.ID = lineID
 			if column == 0 {
 				continue
 			}
-			tableCell := table.GetCell(row+1, column)
 			if fgColor != options.Skin.TableBodyFgColor {
 				tableCell.SetTextColor(fgColor)
 			}
 		}
+		idx++
 	}
 	title := fmt.Sprintf(" [#76b4da]([#02fffe]%s[#76b4da]) [#76b4da][[#FFFFFF]%d[#76b4da]] [#76b4da]Page [#fe00fe]<%d/%d> ", tableData.Title, tableData.Count, tableData.Page, tableData.Pages)
 	table.SetBorder(true).SetTitle(title)
@@ -217,6 +257,7 @@ func showData(tableData data.Data, options *Options) error {
 		event = checkTableDrillDownShortcuts(table, event, options)
 		event = checkTableNavigationShortcuts(table, event, options)
 		event = checkTableSearchBarShortcuts(event, options)
+		event = checkTableSelection(table, event, options)
 		return event
 	})
 	clearMainContainer(options)
@@ -242,41 +283,40 @@ func mainContainerHasTable(options *Options) bool {
 		return true
 	}
 }
-func getTableModelID(options *Options) (string, string, int, error) {
+func getTableModelIDs(options *Options, selection bool) (model string, ids []int, err error) {
 	if !mainContainerHasTable(options) {
-		return "", "", 0, fmt.Errorf("There is no active table")
+		return model, ids, fmt.Errorf("there is no active table")
 	}
 	table := options.Table
-	row, _ := table.GetSelection()
-	var id int
-	var model, name string
-	for col := 0; col < table.GetColumnCount(); col++ {
-		cell := table.GetCell(row, col)
-		if cell.Reference == nil {
-			continue
-		}
-		odooCellReference := cell.Reference.(*OdooCellReference)
-		if odooCellReference.FieldName == "id" {
-			var err error
-			id, err = strconv.Atoi(cell.Text)
-			if err != nil {
-				return "", "", 0, err
-			}
+	if selection {
+		row, _ := table.GetSelection()
+		cell := table.GetCell(row, 0)
+		if cell.Reference != nil {
+			odooCellReference := cell.Reference.(*OdooCellReference)
 			model = odooCellReference.Model
+			ids = append(ids, odooCellReference.ID)
 		}
-		if odooCellReference.FieldName == "name" {
-			name = cell.Text
+	} else {
+		for row := 0; row < table.GetRowCount(); row++ {
+			for col := 0; col < table.GetColumnCount(); col++ {
+				cell := table.GetCell(row, 0)
+				if cell.Reference == nil {
+					continue
+				}
+				odooCellReference := cell.Reference.(*OdooCellReference)
+				if odooCellReference.FieldName == SelectionFieldName && cell.Text != "" {
+					model = odooCellReference.Model
+					ids = append(ids, odooCellReference.ID)
+					break
+				}
+			}
 		}
 	}
 
-	if id == 0 {
-		msg := "Can not found any ID from this table"
-		return "", "", 0, fmt.Errorf(msg)
+	if len(ids) == 0 {
+		err = fmt.Errorf("please select some items before this action")
 	}
-	if name == "" {
-		name = strconv.Itoa(id)
-	}
-	return model, name, id, nil
+	return model, ids, err
 }
 func setTableFocus(options *Options) {
 	if mainContainerHasTable(options) {
@@ -291,12 +331,18 @@ func checkTableNavigationShortcuts(table *tview.Table, event *tcell.EventKey, op
 		goToNextPage(options)
 	} else if event.Rune() == 'p' {
 		goToPreviousPage(options)
-	} else if event.Rune() == 'f' {
+	} else if event.Rune() == '^' {
 		goToFirstPage(options)
-	} else if event.Rune() == 'l' {
+	} else if event.Rune() == '$' {
 		goToLastPage(options)
 	} else if event.Rune() == 'r' {
 		refreshPage(options, true)
+	} else if event.Rune() == 'd' {
+		showDetails(options)
+	} else if event.Rune() == 'm' {
+		showMetadata(options)
+	} else if event.Rune() == 's' {
+		showShortcuts(options)
 	} else if event.Rune() == '?' {
 		showHome(options)
 	}
@@ -327,7 +373,7 @@ func checkTableSearchBarShortcuts(event *tcell.EventKey, options *Options) *tcel
 }
 func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, options *Options) *tcell.EventKey {
 	if event.Key() == tcell.KeyEnter {
-		model, _, id, err := getTableModelID(options)
+		_, ids, err := getTableModelIDs(options, true)
 		if err != nil {
 			showInfo(err.Error(), options, tcell.ColorRed)
 		} else {
@@ -336,13 +382,13 @@ func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, opt
 				showInfo(err.Error(), options, tcell.ColorRed)
 				return event
 			}
-			rcmds, err := odoo.GetRelatedCommands(options.OdooCfg, lastCommand, model)
+			rcmds, err := odoo.GetRelatedCommands(options.OdooCfg, lastCommand)
 			if err != nil {
 				showInfo(err.Error(), options, tcell.ColorRed)
 				return event
 			}
 			rcmd := rcmds[0] //we have one or more
-			rcmd.SetIDs([]int{id})
+			rcmd.SetIDs(ids)
 			cmd := rcmd.GetCommand(options.OdooCfg)
 			options.CommandsHistory.AddCommand(cmd)
 			err = showSearchReadResult(cmd, options)
@@ -350,6 +396,18 @@ func checkTableDrillDownShortcuts(table *tview.Table, event *tcell.EventKey, opt
 				showInfo(err.Error(), options, tcell.ColorRed)
 				return event
 			}
+		}
+	}
+	return event
+}
+func checkTableSelection(table *tview.Table, event *tcell.EventKey, options *Options) *tcell.EventKey {
+	if event.Rune() == ' ' {
+		row, _ := table.GetSelection()
+		selectionTableCell := table.GetCell(row, 0)
+		if selectionTableCell.Text == "" {
+			selectionTableCell.SetText("*")
+		} else {
+			selectionTableCell.SetText("")
 		}
 	}
 	return event

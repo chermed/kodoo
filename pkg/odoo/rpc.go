@@ -61,7 +61,9 @@ func sendRequest(odooCfg *OdooConfig, server *Server, url string, payload []byte
 }
 
 func (server *Server) CallObject(odooCfg *OdooConfig, object string, method string, args ...interface{}) (OdooResponse, error) {
+	log := odooCfg.Log
 	if server.UID == 0 {
+		log.Info("need authentication")
 		if _, err := server.Authenticate(odooCfg); err != nil {
 			return OdooResponse{}, err
 		}
@@ -87,10 +89,37 @@ func (server *Server) CallObject(odooCfg *OdooConfig, object string, method stri
 	}
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
+		log.Error(err)
 		return OdooResponse{}, err
 	}
 	odooResponse, err := sendRequest(odooCfg, server, url, jsonValue)
 	if err != nil {
+		log.Error(err)
+		return OdooResponse{}, err
+	}
+	return odooResponse, nil
+}
+func (server *Server) CallDB(odooCfg *OdooConfig, method string) (OdooResponse, error) {
+	log := odooCfg.Log
+	url := cleanHost(server.Host) + "/jsonrpc"
+	arguments := []interface{}{}
+	values := map[string]interface{}{
+		"jsonrpc": "2.0",
+		"method":  "call",
+		"params": map[string]interface{}{
+			"method":  method,
+			"service": "db",
+			"args":    arguments,
+		},
+	}
+	jsonValue, err := json.Marshal(values)
+	if err != nil {
+		log.Error(err)
+		return OdooResponse{}, err
+	}
+	odooResponse, err := sendRequest(odooCfg, server, url, jsonValue)
+	if err != nil {
+		log.Error(err)
 		return OdooResponse{}, err
 	}
 	return odooResponse, nil

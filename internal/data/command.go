@@ -52,3 +52,15 @@ func RunSearchReadCommand(odooCfg *odoo.OdooConfig, command *odoo.Command, cfg *
 	}
 	return tableData, nil
 }
+
+func GetRelatedCommands(commandHistory *CommandsHistory, odooCfg *odoo.OdooConfig) (rcmds []odoo.RelatedCommand, err error) {
+	lastCommand, err := commandHistory.GetCommand()
+	if err != nil {
+		return rcmds, err
+	}
+	rcmds, err = odoo.GetRelatedCommands(odooCfg, lastCommand)
+	if err != nil {
+		return rcmds, err
+	}
+	return rcmds, err
+}

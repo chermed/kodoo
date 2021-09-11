@@ -6,10 +6,19 @@ import (
 )
 
 type Server struct {
-	Host, Database, User, HiddenPassword, Password, SessionID, ServerVersion string
-	UID                                                                      int
+	Host, Database, User, HiddenPassword, Password string
+	UID                                            int
+	Readonly                                       bool
 }
 
+func NewServer(host, database, user, password string) *Server {
+	return &Server{
+		Host:     host,
+		Database: database,
+		User:     user,
+		Password: password,
+	}
+}
 func (server Server) GetName() string {
 	return fmt.Sprintf("%s/?db=%s", cleanHost(server.Host), server.Database)
 }

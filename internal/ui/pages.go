@@ -60,3 +60,10 @@ func refreshPage(options *Options, show bool) error {
 	}
 	return showSearchReadResult(command, options)
 }
+
+func goToMainPage(options *Options) {
+	options.Pages.SwitchToPage("main")
+	if mainContainerHasTable(options) {
+		setTableFocus(options)
+	}
+}

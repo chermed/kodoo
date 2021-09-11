@@ -25,6 +25,8 @@ func listMacros(options *Options) error {
 			} else {
 				if err := showSearchReadResult(macroCommand, options); err != nil {
 					showError(err, options)
+				} else {
+					options.CommandsHistory.AddCommand(macroCommand)
 				}
 			}
 		}
@@ -37,7 +39,7 @@ func listMacros(options *Options) error {
 func getCommandFromMacro(macroName string, options *Options) (*odoo.Command, error) {
 	macro, found := options.Config.Macros[macroName]
 	if !found {
-		err := fmt.Errorf("The macro [%s] not found", macroName)
+		err := fmt.Errorf("the macro [%s] not found", macroName)
 		return &odoo.Command{}, err
 	}
 	command := odoo.NewCommand(options.OdooCfg, macro.Model, macro.Domain, macro.Fields, macro.Limit, macro.Order, macro.Context)
