@@ -34,6 +34,9 @@ go get -u github.com/chermed/kodoo
 
 ## Using snap
 
+```
+snap install kodoo --channel=beta
+```
 
 ## Using docker
 
@@ -91,4 +94,4 @@ docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest
 
 ## Thanks
 
-Thanks to [derailed](https://github.com/derailed) for his [k9s repository](https://github.com/derailed/k9s), it gave me the idea to build this tool.
+Thanks to [derailed](https://github.com/derailed) for his amazing [k9s repository](https://github.com/derailed/k9s), it gave me the idea to build this tool.
