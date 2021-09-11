@@ -47,7 +47,7 @@ Check the [release page](https://github.com/chermed/kodoo/releases)
 2. Binary and reference fields value will not be shown or downloaded
 
 
-## Roadmap for the the version v0.2.0
+## Roadmap for the the version v0.3.0
 
 The features to be introduced are :
 
