@@ -56,3 +56,4 @@ The features to be introduced are :
 3.  Add the zen mode (focus on data)  
 4.  Brew install
 5.  Snap Install
+6.  Test
