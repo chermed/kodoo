@@ -13,8 +13,10 @@ type OdooConfig struct {
 	DefaultLimit int
 	Timeout      int
 	Mutex        sync.RWMutex
+	NoAutoId     bool
 }
 type Command struct {
+	Description   string
 	Model         string
 	Domain        [][]interface{}
 	Limit         int
@@ -76,6 +78,7 @@ func (cmd *Command) UseAllFields() {
 func (cmd *Command) SetFieldsUpdated() {
 	cmd.FieldsUpdated = true
 }
+
 func (cmd *Command) AreFieldsUpdated() bool {
 	return cmd.FieldsUpdated
 }
@@ -168,7 +171,7 @@ func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) err
 		}
 	}
 	for fieldName := range cmd.AllFields {
-		if fieldName == "id" && !idFound {
+		if fieldName == "id" && !idFound && !odooCfg.NoAutoId {
 			cmd.Fields = append(cmd.Fields[:1], cmd.Fields[0:]...)
 			cmd.Fields[0] = fieldName
 		} else if fieldName == "name" && !nameFound {

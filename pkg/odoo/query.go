@@ -34,7 +34,7 @@ func GetRelatedCommands(odoocfg *OdooConfig, lastCommand *Command) ([]RelatedCom
 		}
 	}
 	if len(rcmds) == 0 {
-		return rcmds, fmt.Errorf("No related object found")
+		return rcmds, fmt.Errorf("no related object found")
 	}
 	sort.SliceStable(rcmds, func(i, j int) bool {
 		return rcmds[i].Score > rcmds[j].Score
@@ -48,7 +48,7 @@ func GetRelatedCommand(model string, rcmds []RelatedCommand) (rcmd RelatedComman
 			return item, err
 		}
 	}
-	return rcmd, fmt.Errorf("The model %s not found from the related commands", model)
+	return rcmd, fmt.Errorf("the model %s not found from the related commands", model)
 }
 
 func StringToCommand(cmd *Command, str string) error {

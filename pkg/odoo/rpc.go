@@ -35,7 +35,7 @@ func sendRequest(odooCfg *OdooConfig, server *Server, url string, payload []byte
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		log.Error("status code is: ", resp.StatusCode)
-		return OdooResponse{}, fmt.Errorf("The connection to the server %s is refused", server.Host)
+		return OdooResponse{}, fmt.Errorf("the connection to the server %s is refused", server.Host)
 	}
 	odooResponse := OdooResponse{}
 	body, err := ioutil.ReadAll(resp.Body)

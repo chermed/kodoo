@@ -37,7 +37,7 @@ func GetSkin() Skin {
 	skin.FieldValueColor = GetColor("#FFFFFF")
 	skin.FieldColonColor = GetColor("#FD971F")
 	skin.BackgroundColor = GetColor("#000000")
-	skin.BorderColor = GetColor("#5887a3")
+	skin.BorderColor = GetColor("#86cdf9")
 	skin.FgErrorColor = GetColor("#F92672")
 	skin.FgSuccessColor = GetColor("#F92672")
 	skin.TitleColor = GetColor("#02fffe")

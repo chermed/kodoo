@@ -38,12 +38,6 @@ brew upgrade chermed/kodoo/kodoo
 go get -u github.com/chermed/kodoo
 ```
 
-## Using snap
-
-```
-snap install kodoo --channel=beta
-```
-
 ## For Windows
 
 Get the executable from the [release page](https://github.com/chermed/kodoo/releases/latest)
@@ -84,6 +78,8 @@ docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest
 8. Sort and filter records
 9. Show metadata and details of a record
 10. Change dynamically the database or the user to use
+11. Zen mode (focus on data with auto page rotation)
+12. Readonly mode
 
 # Use cases 
 

@@ -40,7 +40,7 @@ func (server *Server) Authenticate(odooCfg *OdooConfig) (OdooResponse, error) {
 		server.UID = uid
 		return odooResponse, nil
 	} else {
-		err = fmt.Errorf("Can not connect to the server [%s] with login=%s and password=%s",
+		err = fmt.Errorf("can not connect to the server [%s] with login=%s and password=%s",
 			server.Host,
 			server.User,
 			server.HiddenPassword)

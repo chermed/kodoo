@@ -30,9 +30,13 @@ func RunSearchReadCommand(odooCfg *odoo.OdooConfig, command *odoo.Command, cfg *
 	if err != nil {
 		return Data{}, err
 	}
+	title := command.Model
+	if command.Description != "" {
+		title = command.Description
+	}
 	tableData := Data{
 		Lines:      []map[string]RowItem{},
-		Title:      command.Model,
+		Title:      title,
 		Header:     command.Fields,
 		Count:      command.Count,
 		Page:       command.Page,
