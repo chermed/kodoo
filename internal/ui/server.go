@@ -11,6 +11,9 @@ func getServerInfo(options *Options) *tview.Grid {
 	currentConfig, err := data.GetCurrentServer(options.Config)
 	if err != nil {
 		addField(options, infos, 0, 0, "Error", err.Error(), true, true)
+		addField(options, infos, 1, 0, "", "", true, false)
+		addField(options, infos, 2, 0, "", "", true, false)
+		addField(options, infos, 3, 0, "", "", true, false)
 	} else {
 		version, _ := currentConfig.GetServerVersion(options.OdooCfg)
 		addField(options, infos, 0, 0, "Host", currentConfig.Host, false, true)

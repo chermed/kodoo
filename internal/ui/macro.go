@@ -43,5 +43,6 @@ func getCommandFromMacro(macroName string, options *Options) (*odoo.Command, err
 		return &odoo.Command{}, err
 	}
 	command := odoo.NewCommand(options.OdooCfg, macro.Model, macro.Domain, macro.Fields, macro.Limit, macro.Order, macro.Context)
+	command.Description = macro.Description
 	return command, nil
 }

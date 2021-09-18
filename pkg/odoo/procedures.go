@@ -165,7 +165,7 @@ func (server *Server) NameGet(cmd *Command, odooCfg *OdooConfig) (OdooNameGetRes
 func (server *Server) Metadata(cmd *Command, odooCfg *OdooConfig) (OdooMetadataResult, error) {
 	log := odooCfg.Log
 	if len(cmd.IDS) == 0 {
-		err := fmt.Errorf("No IDS provided to read metadata")
+		err := fmt.Errorf("no IDS provided to read metadata")
 		log.Error(err)
 		return OdooMetadataResult{}, err
 	}
@@ -216,7 +216,7 @@ func (server *Server) FieldsViewGet(cmd *Command, odooCfg *OdooConfig) ([]string
 		}
 	}
 	if len(fields) == 0 {
-		err = fmt.Errorf("No field found using <fields view get>")
+		err = fmt.Errorf("no field found using <fields view get>")
 		log.Error(err)
 		return []string{}, err
 	} else {

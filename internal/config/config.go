@@ -13,37 +13,44 @@ import (
 )
 
 const (
-	sampleConfig = `servers:
+	sampleConfig = `servers: # it's the only required section
   local:
     host: http://localhost:8069/
     database: demo
     user: admin
     password: admin
-	readonly: true
+    readonly: true   # disable calling functions
 config:
   default_server: local
   default_limit: 30
   default_macro: customers
+  # global readonly, it applies to all servers
   readonly: false
   timeout: 4
   refresh:
-    startup: false
+    # enable the auto refresh at the startup to the app
+    # or type ctrl+r to enable and disable
+    startup: false   
     interval_seconds: 10
+  # add the ID column to the table if not provided manually
   show_ids: false
   date_format: 02 Jan 06
   datetime_format: 02 Jan 06 15:04 MST
   no_header: false
   no_password: false
+  zen_mode: false
+  # compact the data table
+  compact: true
 macros:
   products:
     model: product.product
   customers:
-    description: customers
+    description: Customers
     model: res.partner
     domain:
     - ["customer_rank", ">", 0]
   suppliers:
-    description: suppliers
+    description: Suppliers
     model: res.partner
     domain:
     - ["supplier_rank", ">", 0]
@@ -55,9 +62,29 @@ macros:
     - zip
     - country_id
     order: name asc
-    limit: 4`
+    limit: 4
+# aliases are applied to headers and content
+# if a full value of header or a field equal key :
+# the system will show the value (with color if provided)
+# different models can have different values for the same key
+aliases:
+- key: product_id
+  value: Product
+- key: partner_id
+  value: Customer
+  model: sale.order
+- key: cancel
+  value: Cancel
+  model: sale.order
+  color: red`
 )
 
+type Alias struct {
+	Key   string
+	Value string
+	Model string
+	Color string
+}
 type Macro struct {
 	Description, Model string
 	Limit              int
@@ -75,6 +102,8 @@ type MainConfig struct {
 	DefaultLimit   int           `mapstructure:"default_limit"`
 	DefaultMacro   string        `mapstructure:"default_macro"`
 	Readonly       bool          `mapstructure:"readonly"`
+	ZenMode        bool          `mapstructure:"zen_mode"`
+	Compact        bool          `mapstructure:"compact"`
 	Refresh        RefreshConfig `mapstructure:"refresh"`
 	ShowIDs        bool          `mapstructure:"show_ids"`
 	DateFormat     string        `mapstructure:"date_format"`
@@ -92,6 +121,7 @@ type Config struct {
 	Servers    map[string]*odoo.Server `mapstructure:"servers"`
 	MetaConfig *MainConfig             `mapstructure:"config"`
 	Macros     map[string]Macro        `mapstructure:"macros"`
+	Aliases    []Alias                 `mapstructure:"aliases"`
 	Maps       MapConfig               `mapstructure:"maps"`
 	Log        *logrus.Logger
 	URL        string

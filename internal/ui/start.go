@@ -87,6 +87,9 @@ func AppRun(cfg config.Config) {
 		Skin:     config.GetSkin(),
 		Shutdown: make(chan string),
 	}
+	if options.Config.MetaConfig.ZenMode {
+		options.OdooCfg.NoAutoId = true
+	}
 	setupApp(app, options)
 	resetLayout(options)
 	home := getHomeGrid(options)
@@ -121,7 +124,9 @@ func AppRun(cfg config.Config) {
 }
 
 func resetLayout(options *Options) {
-	setupLayout(options, options.Config.MetaConfig.NoHeader, false, false)
+	noSearchBar := false
+	noFooter := false
+	setupLayout(options, options.Config.MetaConfig.NoHeader, noSearchBar, noFooter)
 	clearMainContainer(options)
 }
 func setupLayout(options *Options, noHeader bool, noSearchBar bool, noFooter bool) {
@@ -148,8 +153,13 @@ func setupLayout(options *Options, noHeader bool, noSearchBar bool, noFooter boo
 		rowIndex++
 	}
 	if !noSearchBar {
-		setupSearchBar(options.SearchBar, options)
-		options.Layout.AddItem(options.SearchBar, rowIndex, 0, 1, 1, 0, 0, true)
+		if options.Config.MetaConfig.ZenMode {
+			options.Layout.AddItem(getEmptyTextView(options), rowIndex, 0, 1, 1, 0, 0, true)
+		} else {
+			setupSearchBar(options.SearchBar, options)
+			options.Layout.AddItem(options.SearchBar, rowIndex, 0, 1, 1, 0, 0, true)
+		}
+
 		rowIndex++
 	}
 	setupMainContainer(options.MainContainer, options)

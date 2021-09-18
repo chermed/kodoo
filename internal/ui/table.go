@@ -33,12 +33,18 @@ func getX2ManyStrValue(options *Options, fieldName string, x2ManyData odoo.X2Man
 	return strings.Join(names, ", ")
 }
 func getTableScreen(tableData data.Data, options *Options) *tview.Table {
-	// log := options.Config.Log
-	table := tview.NewTable().
-		SetFixed(1, 2).SetSelectable(true, false)
+	zenMode := options.Config.MetaConfig.ZenMode
+	table := tview.NewTable()
+	if !zenMode {
+		table.SetFixed(1, 2)
+		table.SetSelectable(true, false)
+	}
 	table.SetBackgroundColor(options.Skin.BackgroundColor)
-	table.SetBorderColor(options.Skin.BorderColor)
 	table.SetTitleColor(options.Skin.TitleColor)
+	if !options.Config.MetaConfig.Compact {
+		table.SetBorders(true)
+		table.SetBordersColor(options.Skin.BorderColor)
+	}
 	selectionTableCell := tview.NewTableCell("SEL").
 		SetTextColor(tcell.ColorYellow).
 		SetAlign(tview.AlignCenter).
@@ -51,7 +57,12 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 	headerValueMap := make(map[int]string)
 	for column, headerValue := range tableData.Header {
 		headerValueMap[column] = headerValue
-		tableCell := tview.NewTableCell(strings.ToUpper(headerValue)).
+		headerAliasValue := data.GetAliasValue(*options.Config, headerValue, tableData.Model)
+		headerDisplayedName := strings.ToUpper(headerAliasValue.Value)
+		if zenMode {
+			headerDisplayedName = "[::b]" + headerDisplayedName
+		}
+		tableCell := tview.NewTableCell(headerDisplayedName).
 			SetTextColor(tcell.ColorYellow).
 			SetAlign(tview.AlignLeft).
 			SetSelectable(false).
@@ -95,6 +106,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			tableCell = tableCell.SetReference(odooCellReference)
 			item := lines[fieldName]
 			strValue := ""
+			contentAlign := tview.AlignLeft
 			switch item.Type {
 			case "char", "string", "selection", "text":
 				switch item.Value.(type) {
@@ -153,11 +165,13 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 
 				}
 			case "float", "monetary":
+				contentAlign = tview.AlignRight
 				if fieldName == "id" {
 					lineID = int(item.Value.(float64))
 				}
 				strValue = fmt.Sprintf("%f", item.Value.(float64))
 			case "integer":
+				contentAlign = tview.AlignRight
 				if fieldName == "id" {
 					lineID = int(item.Value.(float64))
 				}
@@ -219,8 +233,17 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 			default:
 				strValue = fmt.Sprintf("%+v", item.Value)
 			}
-			tableCell.SetText(strValue)
-			if column == 0 {
+			aliasValue := data.GetAliasValue(*options.Config, strValue, tableData.Model)
+			if aliasValue.Color != "" {
+				tableCell.SetTextColor(tcell.GetColor(aliasValue.Color).TrueColor())
+			}
+			if zenMode {
+				tableCell.SetText("[::b]" + aliasValue.Value)
+			} else {
+				tableCell.SetText(aliasValue.Value)
+			}
+			tableCell.SetAlign(contentAlign)
+			if column == 0 && !zenMode {
 				tableCell.SetTextColor(options.Skin.TitleColor)
 			}
 			table.SetCell(row+1, column+1, tableCell)
@@ -238,8 +261,14 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 		}
 		idx++
 	}
-	title := fmt.Sprintf(" [#76b4da]([#02fffe]%s[#76b4da]) [#76b4da][[#FFFFFF]%d[#76b4da]] [#76b4da]Page [#fe00fe]<%d/%d> ", tableData.Title, tableData.Count, tableData.Page, tableData.Pages)
-	table.SetBorder(true).SetTitle(title)
+	title := fmt.Sprintf(" [#02fffe::b]%s[#76b4da:bl] [#76b4da][[#FFFFFF]%d[#76b4da]] [#76b4da]PAGE [#fe00fe]<%d/%d> ", tableData.Title, tableData.Count, tableData.Page, tableData.Pages)
+	table.SetTitle(title)
+	table.SetBorder(true)
+	if zenMode {
+		table.SetBorderPadding(2, 0, 0, 0)
+		table.RemoveColumn(0)
+		table.SetBorderColor(options.Skin.BackgroundColor)
+	}
 	return table
 }
 
@@ -328,13 +357,13 @@ func setTableFocus(options *Options) {
 
 func checkTableNavigationShortcuts(table *tview.Table, event *tcell.EventKey, options *Options) *tcell.EventKey {
 	if event.Rune() == 'n' {
-		goToNextPage(options)
+		goToNextPage(options, false)
 	} else if event.Rune() == 'p' {
-		goToPreviousPage(options)
+		goToPreviousPage(options, false)
 	} else if event.Rune() == '^' {
-		goToFirstPage(options)
+		goToFirstPage(options, false)
 	} else if event.Rune() == '$' {
-		goToLastPage(options)
+		goToLastPage(options, false)
 	} else if event.Rune() == 'r' {
 		refreshPage(options, true)
 	} else if event.Rune() == 'd' {
