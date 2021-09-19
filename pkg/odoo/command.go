@@ -119,7 +119,7 @@ func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) err
 	wg.Wait()
 
 	if sharedError != nil {
-		log.Error(sharedError)
+		log.Error("UpdateCommandFields: ", sharedError)
 		return sharedError
 	}
 	if cmd.Limit > 0 {

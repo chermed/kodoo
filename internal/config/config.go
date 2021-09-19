@@ -101,6 +101,7 @@ type MainConfig struct {
 	DefaultMacro   string        `mapstructure:"default_macro"`
 	Readonly       bool          `mapstructure:"readonly"`
 	ZenMode        bool          `mapstructure:"zen_mode"`
+	Debug          bool          `mapstructure:"debug"`
 	Refresh        RefreshConfig `mapstructure:"refresh"`
 	ShowIDs        bool          `mapstructure:"show_ids"`
 	DateFormat     string        `mapstructure:"date_format"`

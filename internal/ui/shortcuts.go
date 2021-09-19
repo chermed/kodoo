@@ -62,7 +62,7 @@ func getShortcuts(options *Options) *tview.List {
 func showShortcuts(options *Options) {
 	shortcuts := getShortcuts(options)
 	shortcuts.Clear()
-	shortcuts.SetBorder(true).SetTitle(" Shortcuts ")
+	shortcuts.SetBorder(true).SetTitle(" Links ")
 	shortcuts.SetTitleColor(options.Skin.TitleColor)
 	rcmds, err := data.GetRelatedCommands(options.CommandsHistory, options.OdooCfg)
 	if err != nil {

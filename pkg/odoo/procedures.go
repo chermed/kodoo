@@ -20,7 +20,7 @@ func (server *Server) SearchRead(cmd *Command, odooCfg *OdooConfig) (OdooReadRes
 	var odooReadResult OdooReadResult
 	err = mapstructure.Decode(odooResponse.Result, &odooReadResult)
 	if err != nil {
-		log.Error(err)
+		log.Error("SearchRead Decode: ", err)
 		return OdooReadResult{}, err
 	}
 	return odooReadResult, nil
@@ -96,7 +96,7 @@ func (server *Server) Search(cmd *Command, odooCfg *OdooConfig) (OdooSearchResul
 	var odooSearchResult OdooSearchResult
 	err = mapstructure.Decode(odooResponse.Result, &odooSearchResult)
 	if err != nil {
-		log.Error(err)
+		log.Error("Search Decode: ", err)
 		return OdooSearchResult{}, err
 	}
 	return odooSearchResult, nil
@@ -113,7 +113,7 @@ func (server *Server) Read(cmd *Command, ids []int, odooCfg *OdooConfig) (OdooRe
 	var odooReadResult OdooReadResult
 	err = mapstructure.Decode(odooResponse.Result, &odooReadResult)
 	if err != nil {
-		log.Error(err)
+		log.Error("Read Decode: ", err)
 		return OdooReadResult{}, err
 	}
 	return odooReadResult, nil
@@ -138,12 +138,12 @@ func (server *Server) Fields(cmd *Command, odooCfg *OdooConfig) (OdooFieldsResul
 	}
 	decoder, err := mapstructure.NewDecoder(config)
 	if err != nil {
-		log.Error(err)
+		log.Error("Fields NewDecoder: ", err)
 		return OdooFieldsResult{}, err
 	}
 	err = decoder.Decode(odooResponse.Result)
 	if err != nil {
-		log.Error(err)
+		log.Error("Fields Decode: ", err)
 		return OdooFieldsResult{}, err
 	}
 	return odooFieldsResult, nil
@@ -157,7 +157,7 @@ func (server *Server) NameGet(cmd *Command, odooCfg *OdooConfig) (OdooNameGetRes
 	var odooNameGetResult OdooNameGetResult
 	err = mapstructure.Decode(odooResponse.Result, &odooNameGetResult)
 	if err != nil {
-		log.Error(err)
+		log.Error("NameGet Decode: ", err)
 		return OdooNameGetResult{}, err
 	}
 	return odooNameGetResult, nil
@@ -166,7 +166,7 @@ func (server *Server) Metadata(cmd *Command, odooCfg *OdooConfig) (OdooMetadataR
 	log := odooCfg.Log
 	if len(cmd.IDS) == 0 {
 		err := fmt.Errorf("no IDS provided to read metadata")
-		log.Error(err)
+		log.Error("Metadata: ", err)
 		return OdooMetadataResult{}, err
 	}
 	odooResponse, err := server.CallObject(odooCfg, cmd.Model, "get_metadata", cmd.IDS)
@@ -176,7 +176,7 @@ func (server *Server) Metadata(cmd *Command, odooCfg *OdooConfig) (OdooMetadataR
 	var odooMetadataResult OdooMetadataResult
 	err = mapstructure.Decode(odooResponse.Result, &odooMetadataResult)
 	if err != nil {
-		log.Error(err)
+		log.Error("Metadata Decode: ", err)
 		return OdooMetadataResult{}, err
 	}
 	return odooMetadataResult, nil
@@ -190,13 +190,13 @@ func (server *Server) FieldsViewGet(cmd *Command, odooCfg *OdooConfig) ([]string
 	var odooFieldsViewGetResult OdooFieldsViewGetResult
 	err = mapstructure.Decode(odooResponse.Result, &odooFieldsViewGetResult)
 	if err != nil {
-		log.Error(err)
+		log.Error("FieldsViewGet Decode: ", err)
 		return []string{}, err
 	}
 	var odooTree OdooTree
 	err = xml.Unmarshal([]byte(odooFieldsViewGetResult.Arch), &odooTree)
 	if err != nil {
-		log.Error(err)
+		log.Error("FieldsViewGet Unmarshal: ", err)
 		return []string{}, err
 	}
 	fields := []string{}
@@ -217,7 +217,7 @@ func (server *Server) FieldsViewGet(cmd *Command, odooCfg *OdooConfig) ([]string
 	}
 	if len(fields) == 0 {
 		err = fmt.Errorf("no field found using <fields view get>")
-		log.Error(err)
+		log.Error("FieldsViewGet", err)
 		return []string{}, err
 	} else {
 		fields = append(fields[:1], fields[0:]...)
@@ -253,7 +253,7 @@ func (server *Server) FieldsTree(cmd *Command, odooCfg *OdooConfig) ([]string, e
 	var odooTree OdooTree
 	err = xml.Unmarshal([]byte(modelXmlValue), &odooTree)
 	if err != nil {
-		log.Error(err)
+		log.Error("FieldsTree Unmarshal: ", err)
 		return []string{}, err
 	}
 	fields := []string{}

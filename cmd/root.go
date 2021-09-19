@@ -13,16 +13,15 @@ import (
 )
 
 const (
-	Version = "v0.3.0"
+	Version = "v0.3.1"
 	URL     = "https://github.com/chermed/kodoo"
 )
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "kodoo",
-		Short: "Kodoo is terminal UI for Odoo",
-		Long: `A Fast and Flexible terminal UI for Odoo.
-				  Complete documentation is available at https://github.com/chermed/kodoo`,
+		Use:    "kodoo",
+		Short:  "Kodoo is terminal UI for Odoo",
+		Long:   `A Fast and Flexible terminal UI for Odoo (visit https://github.com/chermed/kodoo).`,
 		PreRun: loadConfigAndViper,
 		Run:    startUI,
 	}
@@ -32,6 +31,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP("macro", "m", "", "the name of the macro to execute")
 	rootCmd.PersistentFlags().BoolP("readonly", "", false, "activate the global readonly mode")
 	rootCmd.PersistentFlags().BoolP("zen-mode", "", false, "activate the zen mode")
+	rootCmd.PersistentFlags().BoolP("debug", "", false, "debug mode")
 	rootCmd.PersistentFlags().StringP("server", "s", "", "the odoo server to use")
 	rootCmd.PersistentFlags().BoolP("no-header", "", false, "hide the header")
 	rootCmd.PersistentFlags().BoolP("no-password", "", false, "hide the password")
@@ -46,6 +46,7 @@ func loadConfigAndViper(cmd *cobra.Command, args []string) {
 	config.LoadConfig()
 	viper.BindPFlag("config.readonly", cmd.PersistentFlags().Lookup("readonly"))
 	viper.BindPFlag("config.zen_mode", cmd.PersistentFlags().Lookup("zen-mode"))
+	viper.BindPFlag("config.debug", cmd.PersistentFlags().Lookup("debug"))
 	viper.BindPFlag("config.default_macro", cmd.PersistentFlags().Lookup("macro"))
 	viper.BindPFlag("config.default_server", cmd.PersistentFlags().Lookup("server"))
 	viper.BindPFlag("config.default_limit", cmd.PersistentFlags().Lookup("limit"))
@@ -60,9 +61,12 @@ func startUI(cmd *cobra.Command, args []string) {
 		os.Exit(-1)
 	}
 	var filename string = viper.GetString("config.logfile")
+	var debug bool = viper.GetBool("config.debug")
 	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	var log = logrus.New()
-
+	if debug {
+		log.SetLevel(logrus.DebugLevel)
+	}
 	if err == nil {
 		log.Out = f
 	} else {
