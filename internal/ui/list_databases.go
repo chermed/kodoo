@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	lblDatabases = "Databases"
+	lblDatabases = "Database"
 	lblLogin     = "Username / Email"
 	lblPassword  = "Password"
 )

@@ -41,7 +41,7 @@ func getTableScreen(tableData data.Data, options *Options) *tview.Table {
 	}
 	table.SetBackgroundColor(options.Skin.BackgroundColor)
 	table.SetTitleColor(options.Skin.TitleColor)
-	if !options.Config.MetaConfig.Compact {
+	if options.Config.MetaConfig.ZenMode {
 		table.SetBorders(true)
 		table.SetBordersColor(options.Skin.BorderColor)
 	}

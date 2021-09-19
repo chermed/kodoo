@@ -39,8 +39,6 @@ config:
   no_header: false
   no_password: false
   zen_mode: false
-  # compact the data table
-  compact: true
 macros:
   products:
     model: product.product
@@ -103,7 +101,6 @@ type MainConfig struct {
 	DefaultMacro   string        `mapstructure:"default_macro"`
 	Readonly       bool          `mapstructure:"readonly"`
 	ZenMode        bool          `mapstructure:"zen_mode"`
-	Compact        bool          `mapstructure:"compact"`
 	Refresh        RefreshConfig `mapstructure:"refresh"`
 	ShowIDs        bool          `mapstructure:"show_ids"`
 	DateFormat     string        `mapstructure:"date_format"`
