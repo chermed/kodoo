@@ -21,18 +21,18 @@ func (server *Server) Authenticate(odooCfg *OdooConfig) (OdooResponse, error) {
 	}
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
-		log.Error(err)
+		log.Error("Authenticate Marshal: ", err)
 		return OdooResponse{}, err
 	}
 	odooResponse, err := sendRequest(odooCfg, server, url, jsonValue)
 	if err != nil {
-		log.Error(err)
+		log.Error("Authenticate sendRequest: ", err)
 		return OdooResponse{}, err
 	}
 	var odooUserResult OdooUserResult
 	err = mapstructure.Decode(odooResponse.Result, &odooUserResult)
 	if err != nil {
-		log.Error(err)
+		log.Error("Authenticate Decode: ", err)
 		return OdooResponse{}, err
 	}
 	uid := odooUserResult.UID
@@ -44,7 +44,7 @@ func (server *Server) Authenticate(odooCfg *OdooConfig) (OdooResponse, error) {
 			server.Host,
 			server.User,
 			server.HiddenPassword)
-		log.Error(err)
+		log.Error("Authenticate UID: ", err)
 		return OdooResponse{}, err
 	}
 }

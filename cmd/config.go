@@ -10,7 +10,7 @@ import (
 
 var initConfigCmd = &cobra.Command{
 	Use:   "init-config",
-	Short: "Create a basic configuration file if not exists",
+	Short: "create a basic configuration file if not exists",
 	Run: func(cmd *cobra.Command, args []string) {
 		path, err := config.InitConfigFiles()
 		if err != nil {
@@ -23,7 +23,7 @@ var initConfigCmd = &cobra.Command{
 
 var sampleConfigCmd = &cobra.Command{
 	Use:   "sample-config",
-	Short: "Show a sample configuration",
+	Short: "show a sample configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(config.GetSampleConfig())
 	},

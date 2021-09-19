@@ -119,7 +119,7 @@ func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) err
 	wg.Wait()
 
 	if sharedError != nil {
-		log.Error(sharedError)
+		log.Error("UpdateCommandFields: ", sharedError)
 		return sharedError
 	}
 	if cmd.Limit > 0 {
@@ -159,25 +159,15 @@ func (cmd *Command) UpdateCommandFields(server *Server, odooCfg *OdooConfig) err
 		}
 	}
 	idFound := false
-	nameFound := false
-	stateFound := false
 	for _, fieldName := range cmd.Fields {
 		if fieldName == "id" {
 			idFound = true
-		} else if fieldName == "name" {
-			nameFound = true
-		} else if fieldName == "state" {
-			stateFound = true
 		}
 	}
 	for fieldName := range cmd.AllFields {
 		if fieldName == "id" && !idFound && !odooCfg.NoAutoId {
 			cmd.Fields = append(cmd.Fields[:1], cmd.Fields[0:]...)
 			cmd.Fields[0] = fieldName
-		} else if fieldName == "name" && !nameFound {
-			cmd.Fields = append(cmd.Fields, fieldName)
-		} else if fieldName == "state" && !stateFound {
-			cmd.Fields = append(cmd.Fields, fieldName)
 		}
 	}
 

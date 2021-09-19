@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	strLib "github.com/mgutz/str"
+	funk "github.com/thoas/go-funk"
 )
 
 func GetRelatedCommands(odoocfg *OdooConfig, lastCommand *Command) ([]RelatedCommand, error) {
@@ -63,6 +64,7 @@ func StringToCommand(cmd *Command, str string) error {
 	}
 	fields := []string{}
 	orders := []string{}
+	orderCount := 0
 	domains := make([][]interface{}, 0)
 	for _, part := range parts {
 		if len(part) == 0 {
@@ -146,9 +148,11 @@ func StringToCommand(cmd *Command, str string) error {
 			continue
 		}
 		if string(part[0]) == "+" && len(part) > 1 {
+			orderCount += 1
 			fields = append(fields, part[1:])
 			orders = append(orders, fmt.Sprintf("%v asc", part[1:]))
 		} else if string(part[0]) == "-" && len(part) > 1 {
+			orderCount += 1
 			fields = append(fields, part[1:])
 			orders = append(orders, fmt.Sprintf("%v desc", part[1:]))
 		} else {
@@ -156,8 +160,8 @@ func StringToCommand(cmd *Command, str string) error {
 		}
 
 	}
-	if len(fields) > 0 {
-		cmd.Fields = fields
+	if len(fields) > orderCount {
+		cmd.Fields = funk.UniqString(fields)
 	}
 	if len(domains) > 0 {
 		cmd.Domain = domains

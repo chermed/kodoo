@@ -8,7 +8,7 @@ import (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print the version number of Kodoo",
+	Short: "print the version number of Kodoo",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(Version)
 	},

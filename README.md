@@ -2,10 +2,15 @@
 
 **Terminal UI for Odoo**
 
-The `kodoo` tool is a Terminal UI for Odoo that allow to show and query the data, it's destined for Odoo developers and for end users.
+The `kodoo` tool is a Terminal UI for Odoo that allow to show and query the data, it's destined for Odoo developers and for end users, it's working for versions 8, 9, 10, 11, 12, 13 and 14.
 
 
-[![asciicast](https://asciinema.org/a/430567.svg)](https://asciinema.org/a/430567)
+[![asciicast](https://asciinema.org/a/436715.svg)](https://asciinema.org/a/436715)
+
+## Zen mode :
+
+[![asciicast](https://asciinema.org/a/436709.svg)](https://asciinema.org/a/436709)
+
 
 # Installation :
 
@@ -81,6 +86,40 @@ docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest
 11. Zen mode (focus on data with auto page rotation)
 12. Readonly mode
 
+# Query and filter
+
+Let's assume the following query:
+
+```
+sale.order +id -name partner_id state state=sent,sale partner_id.name~gem %10
+```
+
+It will be parsed to :
+
+1. Model: `sale.order`
+1. Fields: `id`, `name`, `partner_id` and `state`
+1. Domain: `[["state", "in", ["sent","sale"]], ["partner_id.name", "ilike", "gem"]]`
+1. Order: `id asc, name desc`
+1. Limit: `10`
+
+Only the model is required for the query, the other parameters could be given during the filter, example :
+
+```
+/state=sale +id %3 state name date_order
+```
+
+The transformation of operators is done in that way :
+
+| Kodoo operator | Odoo operator |
+|----------------|---------------|
+| `=`            | `in`          |
+| `~`            | `ilike`       |
+| `>=`           | `>=`          |
+| `<=`           | `<=`          |
+| `>`            | `>`           |
+| `<`            | `<`           |
+| `!=`           | `!=`          |
+
 # Use cases 
 
 1. For developers :
@@ -88,13 +127,13 @@ docker run -it --rm -v $(pwd):/.kodoo --net host chermed/kodoo:latest
    2. Query and show invisible objects and invisible fields
 2. For Odoo customers :
    1. Use the Zen mode to display data on a hanging screen (Kitchen for a restaurant, Work orders for the manufacturing, etc)
-   2. Use macros to access easily to custom views and data
+   2. Use macros like menu actions (custom views)
 
 # Limitations :
 
-1. Filtering data is basic:
-   1. The values in the domain are sent to odoo as strings or list of strings
-   2. If many filters are specified the logical operator is `AND`
+1. Data filtering is basic:
+   1. The values in the domains are sent to odoo as strings or list of strings
+   2. If many filters are provided, the logical operator that's applied is `AND`
 2. Binary fields value will not be shown or downloaded
 
 

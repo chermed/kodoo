@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
-	"strconv"
 	"time"
 )
 
@@ -23,13 +22,13 @@ func sendRequest(odooCfg *OdooConfig, server *Server, url string, payload []byte
 	log.Debug(fmt.Sprintf("sending request to %s with payload : %s", server.GetName(), string(payload)))
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 	if err != nil {
-		log.Error(err)
+		log.Error("sendRequest NewRequest: ", err)
 		return OdooResponse{}, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error(err)
+		log.Error("sendRequest Do: ", err)
 		return OdooResponse{}, err
 	}
 	defer resp.Body.Close()
@@ -40,11 +39,12 @@ func sendRequest(odooCfg *OdooConfig, server *Server, url string, payload []byte
 	odooResponse := OdooResponse{}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error(body)
+		log.Error("sendRequest ReadAll:", body)
 		return OdooResponse{}, err
 	}
+	log.Debug("response: ", string(body))
 	if err := json.Unmarshal(body, &odooResponse); err != nil {
-		log.Error(err)
+		log.Error("sendRequest Unmarshal: ", err)
 		return OdooResponse{}, err
 	}
 	if !reflect.DeepEqual(OdooError{}, odooResponse.Error) {
@@ -72,7 +72,7 @@ func (server *Server) CallObject(odooCfg *OdooConfig, object string, method stri
 	url := cleanHost(server.Host) + "/jsonrpc"
 	arguments := []interface{}{
 		server.Database,
-		strconv.Itoa(server.UID),
+		server.UID,
 		server.Password,
 		object,
 		method,
@@ -89,12 +89,12 @@ func (server *Server) CallObject(odooCfg *OdooConfig, object string, method stri
 	}
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
-		log.Error(err)
+		log.Error("CallObject Marshal: ", err)
 		return OdooResponse{}, err
 	}
 	odooResponse, err := sendRequest(odooCfg, server, url, jsonValue)
 	if err != nil {
-		log.Error(err)
+		log.Error("CallObject sendRequest: ", err)
 		return OdooResponse{}, err
 	}
 	return odooResponse, nil
@@ -114,12 +114,12 @@ func (server *Server) CallDB(odooCfg *OdooConfig, method string) (OdooResponse, 
 	}
 	jsonValue, err := json.Marshal(values)
 	if err != nil {
-		log.Error(err)
+		log.Error("CallDB Marshal: ", err)
 		return OdooResponse{}, err
 	}
 	odooResponse, err := sendRequest(odooCfg, server, url, jsonValue)
 	if err != nil {
-		log.Error(err)
+		log.Error("CallDB sendRequest: ", err)
 		return OdooResponse{}, err
 	}
 	return odooResponse, nil
