@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	Version = "v0.3.1"
+	Version = "v0.3.2"
 	URL     = "https://github.com/chermed/kodoo"
 )
 

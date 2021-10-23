@@ -2,7 +2,7 @@
 
 **Terminal UI for Odoo**
 
-The `kodoo` tool is a Terminal UI for Odoo that allow to show and query the data, it's destined for Odoo developers and for end users, it's working for versions 8, 9, 10, 11, 12, 13 and 14.
+The `kodoo` tool is a Terminal UI for Odoo that allows to navigate data, it's destined to developers and end users, it supports the odoo versions from 8.0 to 15.0.
 
 
 [![asciicast](https://asciinema.org/a/436715.svg)](https://asciinema.org/a/436715)
